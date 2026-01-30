@@ -790,6 +790,37 @@
             transform: scale(1.08);
         }
 
+        /* --- Gallery Overlay Styling --- */
+        .g-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            /* Semi-transparent dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            font-family: var(--font-tech);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0;
+            /* Hidden by default */
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 2;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Show the text when hovering over the gallery item */
+        .g-item:hover .g-overlay {
+            opacity: 1;
+        }
+
         /* --- 8. SPEAKERS --- */
         .speakers-grid {
             display: grid;
