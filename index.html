@@ -1126,6 +1126,29 @@
                 grid-column: span 1 !important;
                 grid-row: span 1 !important;
             }
+
+            .f-col {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* Centers the titles and text */
+            }
+
+            .contact-pill {
+                justify-content: center;
+                /* Centers the icon + text horizontally */
+                width: 100%;
+            }
+
+            .newsletter {
+                justify-content: center;
+                width: 100%;
+                max-width: 300px;
+                /* Keeps the input field from getting too wide */
+                margin: 1rem auto 0;
+                /* Centers the form itself */
+            }
         }
 
         @media (max-width: 480px) {
@@ -1217,10 +1240,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .f-col {
-                text-align: center;
-            }
-
             .footer-bottom {
                 padding-top: 1rem;
             }
@@ -1234,6 +1253,29 @@
                 width: 100%;
                 justify-content: center;
                 padding: 1rem;
+            }
+
+            .f-col {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* Centers the titles and text */
+            }
+
+            .contact-pill {
+                justify-content: center;
+                /* Centers the icon + text horizontally */
+                width: 100%;
+            }
+
+            .newsletter {
+                justify-content: center;
+                width: 100%;
+                max-width: 300px;
+                /* Keeps the input field from getting too wide */
+                margin: 1rem auto 0;
+                /* Centers the form itself */
             }
         }
 
