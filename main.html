@@ -1,0 +1,2024 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="PRITHVI 2026 - The 18th International Earth Science Symposium at IIT Kharagpur. A premier geological competition and academic conference.">
+    <meta name="theme-color" content="#030305">
+    <meta name="color-scheme" content="dark light">
+    <title>PRITHVI 2026 | The Geological Zenith</title>
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://prithvi.iitkgp.ac.in/">
+    <meta property="og:title" content="PRITHVI 2026 | The Geological Zenith">
+    <meta property="og:description"
+        content="Join the 18th International Earth Science Symposium at IIT Kharagpur. April 3-5, 2026.">
+    <meta property="og:image" content="./assets/og-preview.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2300f2ff' width='100' height='100'/><text x='50' y='70' font-size='80' font-weight='bold' text-anchor='middle' fill='%23030305'>P</text></svg>">
+    <link rel="shortcut icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2300f2ff' width='100' height='100'/><text x='50' y='70' font-size='80' font-weight='bold' text-anchor='middle' fill='%23030305'>P</text></svg>">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;500;600;700&family=Syne:wght@400;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Latest CDN (v6.7.2) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Three.js, GSAP, Vanilla Tilt -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"
+        crossorigin="anonymous"></script>
+
+    <style>
+        /* --- 1. CORE VARIABLES --- */
+        :root {
+            --transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            --font-display: 'Syne', sans-serif;
+            --font-tech: 'Michroma', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        /* DARK MODE (Seismic Night) */
+        [data-theme="dark"] {
+            --bg-deep: #030305;
+            --bg-grad: radial-gradient(circle at center, #0f172a 0%, #000000 100%);
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+            --primary: #00f2ff;
+            --secondary: #7c3aed;
+            --accent: #ff0055;
+            --glass: rgba(20, 20, 30, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
+            --nav-bg: rgba(3, 3, 5, 0.85);
+            --shadow: 0 20px 40px rgba(0, 242, 255, 0.1);
+        }
+
+        /* LIGHT MODE (Glacial Day) */
+        [data-theme="light"] {
+            --bg-deep: #f8fafc;
+            --bg-grad: radial-gradient(circle at center, #e0f2fe 0%, #f1f5f9 100%);
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --primary: #0284c7;
+            --secondary: #0d9488;
+            --accent: #ea580c;
+            --glass: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.08);
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 20px 40px rgba(2, 132, 199, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            transition: background var(--transition), color var(--transition);
+            line-height: 1.6;
+        }
+
+        /* Noise Texture */
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* 3D Canvas */
+        #geo-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+
+        }
+
+        canvas {
+            display: block;
+            /* Removes the bottom whitespace gap */
+        }
+
+        /* Focus Visible for Accessibility */
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* --- 2. NAVIGATION --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .logo {
+            font-family: var(--font-tech);
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: clamp(1.3rem, 4vw, 1.8rem);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-item {
+            color: var(--text-sub);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-item:hover,
+        .nav-item:focus {
+            color: var(--primary);
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-item:hover::after,
+        .nav-item:focus::after {
+            width: 100%;
+        }
+
+        .btn-theme {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: 0.3s;
+        }
+
+        .btn-theme:hover,
+        .btn-theme:focus {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: rotate(180deg);
+        }
+
+        .btn-primary {
+            padding: 0.8rem 2rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-family: var(--font-tech);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            font-weight: 700;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-deep);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            transform: translateY(-100%);
+            transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .mobile-menu.active {
+            transform: translateY(0);
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .mobile-link {
+            font-size: 2rem;
+            font-family: var(--font-display);
+            color: var(--text-main);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .mobile-link:hover,
+        .mobile-link:focus {
+            color: var(--primary);
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-sub);
+            background: none;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .close-menu:hover {
+            color: var(--primary);
+        }
+
+        /* --- 3. HERO SECTION --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+            margin-top: 80px;
+        }
+
+        .hero-pill {
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            background: rgba(0, 242, 255, 0.05);
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 9vw, 8rem);
+            line-height: 0.9;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            color: var(--text-main);
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-sub);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        /* Countdown */
+        .countdown {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .time-unit {
+            text-align: center;
+        }
+
+        .t-val {
+            font-family: var(--font-tech);
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            color: var(--text-main);
+            display: block;
+        }
+
+        .t-lbl {
+            font-size: 0.8rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-sub);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* --- 4. CARDS GRID --- */
+        .section {
+            padding: clamp(4rem, 8vw, 8rem) 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .sec-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .sec-header h2 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .sec-header p {
+            color: var(--text-sub);
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .event-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            position: relative;
+            overflow: hidden;
+            transition: 0.4s;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .event-card:hover,
+        .event-card:focus-within {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .cs-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s;
+            backdrop-filter: blur(4px);
+            pointer-events: auto;
+            z-index: 20;
+        }
+
+        .event-card:hover .cs-overlay {
+            opacity: 0.9;
+        }
+
+
+        /* Ensure locked cards don't have interactive links */
+        .event-card:has(.cs-overlay) .card-link {
+            display: none !important;
+        }
+
+        .event-card:has(.cs-overlay) {
+            cursor: allowed;
+        }
+
+        .event-card:has(.cs-overlay) a,
+        .event-card:has(.cs-overlay) button {
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .lock-text {
+            color: #fff;
+            font-family: var(--font-tech);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .event-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .event-card p {
+            color: var(--text-sub);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .card-link {
+            color: var(--text-main);
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-bottom: 1px solid var(--primary);
+            width: fit-content;
+            transition: 0.3s;
+            display: none;
+        }
+
+        .card-link:hover,
+        .card-link:focus {
+            color: var(--primary);
+        }
+
+        /* --- 5. SPONSORS --- */
+        .logo-wall {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0.8;
+            margin-top: 3rem;
+            align-items: center;
+        }
+
+        .partner {
+            font-family: var(--font-tech);
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-weight: 700;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            padding: 1rem 2rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--glass);
+        }
+
+        .partner:hover,
+        .partner:focus {
+            color: var(--text-main);
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .partner i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        /* --- 6. REGISTRATION (Consolidated Fix) --- */
+        .reg-wrapper {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: clamp(2rem, 5vw, 4rem);
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reg-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .input-group label .required {
+            color: var(--accent);
+        }
+
+        /* --- UNIVERSAL INPUT STYLES --- */
+        .input-field,
+        .input-field select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: 0.3s;
+            outline: none;
+
+            /* Default Colors (Dark Mode) */
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+        }
+
+        /* Light Mode Overrides */
+        [data-theme="light"] .input-field,
+        [data-theme="light"] .input-field select {
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #cbd5e1;
+        }
+
+        /* Focus State */
+        .input-field:focus,
+        .input-field select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.1);
+        }
+
+        /* --- AUTOFILL FIX (The Nuclear Option) --- */
+        /* This forces the browser to paint over its default blue background */
+
+        /* 1. Dark Mode Autofill */
+        .input-field:-webkit-autofill,
+        .input-field:-webkit-autofill:hover,
+        .input-field:-webkit-autofill:focus,
+        .input-field:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px var(--bg-deep) inset !important;
+            -webkit-text-fill-color: var(--text-main) !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* 2. Light Mode Autofill */
+        [data-theme="light"] .input-field:-webkit-autofill,
+        [data-theme="light"] .input-field:-webkit-autofill:hover,
+        [data-theme="light"] .input-field:-webkit-autofill:focus,
+        [data-theme="light"] .input-field:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            -webkit-text-fill-color: #000000 !important;
+            caret-color: #000000 !important;
+        }
+
+        .input-field option {
+            background: var(--bg-deep);
+            color: var(--text-main);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-family: var(--font-tech);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit:hover,
+        .btn-submit:focus {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- 7. GALLERY (Mosaic) --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-auto-rows: 280px;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .g-span-2 {
+                grid-column: span 2 !important;
+            }
+
+            .g-row-2 {
+                grid-row: span 2 !important;
+            }
+        }
+
+        /* Apply spans ONLY to desktop to avoid conflicts */
+        @media (min-width: 769px) {
+            .g-span-2 {
+                grid-column: span 2;
+            }
+
+            .g-row-2 {
+                grid-row: span 2;
+            }
+        }
+
+        .g-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--glass);
+        }
+
+
+        .g-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            filter: grayscale(40%);
+        }
+
+        .g-item:hover img {
+            filter: grayscale(0%);
+            transform: scale(1.08);
+        }
+
+        /* --- 8. SPEAKERS --- */
+        .speakers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+        }
+
+        .s-card {
+            background: var(--glass);
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .s-card:hover,
+        .s-card:focus-within {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .s-img-container {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .s-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            transition: 0.4s;
+        }
+
+        .s-card:hover .s-img {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .s-name {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .s-role {
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- 9. MEGA FOOTER --- */
+        footer {
+            background: var(--bg-deep);
+            border-top: 1px solid var(--border);
+            padding: 5rem 5% 2rem;
+            margin-top: 6rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .f-col h4 {
+            color: var(--text-main);
+            font-family: var(--font-display);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .f-text {
+            color: var(--text-sub);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .f-link {
+            display: block;
+            color: var(--text-sub);
+            text-decoration: none;
+            margin-bottom: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .f-link:hover,
+        .f-link:focus {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .contact-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-sub);
+            margin-bottom: 1rem;
+            transition: 0.3s;
+        }
+
+        .contact-pill a {
+            color: inherit;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .contact-pill a:hover,
+        .contact-pill a:focus {
+            color: var(--primary);
+        }
+
+        .contact-pill i {
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .newsletter {
+            display: flex;
+            margin-top: 1rem;
+            gap: 0;
+        }
+
+        .news-input {
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-main);
+            width: 100%;
+            border-radius: 4px 0 0 4px;
+            font-family: var(--font-body);
+        }
+
+        .news-input::placeholder {
+            color: var(--text-sub);
+        }
+
+        .news-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 242, 255, 0.1);
+        }
+
+        .news-btn {
+            padding: 0 1.2rem;
+            background: var(--primary);
+            border: 1px solid var(--primary);
+            color: #fff;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .news-btn:hover,
+        .news-btn:focus {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .socials {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .socials a {
+            color: var(--text-main);
+            font-size: 1.5rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass);
+            border: 1px solid var(--border);
+        }
+
+        .socials a:hover,
+        .socials a:focus {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-auto-rows: 200px;
+            }
+
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 3%;
+            }
+
+            .nav-links,
+            .btn-primary,
+            .btn-theme {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .hero {
+                margin-top: 60px;
+                min-height: 90vh;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+
+            .speakers-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .reg-wrapper {
+                padding: 2rem 1.5rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .socials {
+                justify-content: center;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: 180px;
+            }
+
+            .section {
+                padding: 3rem 3%;
+            }
+
+            .sec-header h2 {
+                font-size: 2rem;
+            }
+
+            .countdown {
+                gap: 1rem;
+            }
+
+            .t-val {
+                font-size: 1.8rem;
+            }
+
+            .logo-wall {
+                gap: 1rem;
+            }
+
+            .partner {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.85rem;
+            }
+
+            .g-span-2,
+            .g-row-2 {
+                grid-column: span 1 !important;
+                grid-row: span 1 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                padding: 0.8rem 3%;
+            }
+
+            .logo {
+                font-size: 1.1rem;
+            }
+
+            .logo i {
+                font-size: 1.3rem;
+            }
+
+            .hero {
+                padding: 0 3%;
+                margin-top: 50px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+            }
+
+            .section {
+                padding: 2.5rem 3%;
+            }
+
+            .sec-header h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .countdown {
+                gap: 0.8rem;
+                flex-direction: row;
+            }
+
+            .time-unit {
+                flex: 1;
+            }
+
+            .t-val {
+                font-size: 1.3rem;
+            }
+
+            .t-lbl {
+                font-size: 0.65rem;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .event-card {
+                padding: 1.5rem;
+            }
+
+            .speakers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 150px;
+            }
+
+            .g-span-2,
+            .g-row-2 {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .reg-wrapper {
+                padding: 1.5rem 1rem;
+                border-radius: 15px;
+            }
+
+            .form-row {
+                margin-bottom: 1.5rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .f-col {
+                text-align: center;
+            }
+
+            .footer-bottom {
+                padding-top: 1rem;
+            }
+
+            .logo-wall {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .partner {
+                width: 100%;
+                justify-content: center;
+                padding: 1rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            nav,
+            footer,
+            .btn-theme,
+            .hamburger,
+            .scroll-down {
+                display: none;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+        }
+
+        .btn-submit:hover,
+        .btn-submit:focus {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+
+
+
+    <script>
+        // This prevents the page from flashing dark mode before switching to light
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
+
+<body>
+
+    <div class="noise-overlay" aria-hidden="true"></div>
+    <div id="geo-canvas" aria-hidden="true"></div>
+
+    <nav role="navigation" aria-label="Main Navigation">
+        <a href="#home" class="logo" aria-label="PRITHVI 2026 - The Geological Zenith">
+            <i class="fas fa-layer-group" aria-hidden="true"></i>
+            <span>PRITHVI '26</span>
+        </a>
+        <div class="nav-actions">
+            <div class="nav-links">
+                <a href="#events" class="nav-item">Competitions</a>
+                <a href="#speakers" class="nav-item">Legacy</a>
+                <a href="#gallery" class="nav-item">Gallery</a>
+                <a href="#contact" class="nav-item">Contact</a>
+            </div>
+            <button class="btn-theme" id="themeToggle" aria-label="Toggle dark/light theme" type="button">
+                <i class="fas fa-moon" aria-hidden="true"></i>
+            </button>
+            <a href="#register" class="btn-primary">REGISTER</a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle mobile menu" aria-expanded="false"
+                type="button">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile Navigation">
+        <button class="close-menu" id="closeMenu" aria-label="Close menu" type="button">✕</button>
+        <a href="#events" class="mobile-link">Competitions</a>
+        <a href="#speakers" class="mobile-link">Legacy</a>
+        <a href="#gallery" class="mobile-link">Gallery</a>
+        <a href="#contact" class="mobile-link">Contact</a>
+        <a href="#register" class="mobile-link" style="color:var(--primary)">Register</a>
+    </div>
+
+    <section class="hero" id="home">
+        <span class="hero-pill">PRITHVI '26 • APRIL 3-5, 2026</span>
+        <h1 class="reveal">UNEARTHING<br><span>THE FUTURE</span></h1>
+        <p class="reveal">The 18th International Earth Science Symposium at IIT Kharagpur. Where geology meets
+            innovation.</p>
+
+        <div class="countdown reveal" aria-live="polite" aria-label="Event countdown">
+            <div class="time-unit">
+                <span class="t-val" id="d" aria-label="Days">00</span>
+                <span class="t-lbl">Days</span>
+            </div>
+            <div class="time-unit">
+                <span class="t-val" id="h" aria-label="Hours">00</span>
+                <span class="t-lbl">Hours</span>
+            </div>
+            <div class="time-unit">
+                <span class="t-val" id="m" aria-label="Minutes">00</span>
+                <span class="t-lbl">Mins</span>
+            </div>
+            <div class="time-unit">
+                <span class="t-val" id="s" aria-label="Seconds">00</span>
+                <span class="t-lbl">Secs</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center;">
+            <a href="#events" class="btn-primary" style="clip-path: none; border-radius: 50px;">Explore Competitions</a>
+        </div>
+        <div class="scroll-down" aria-hidden="true"><i class="fas fa-chevron-down" aria-hidden="true"></i></div>
+    </section>
+
+    <section id="events" class="section">
+        <div class="sec-header">
+            <h2>2026 COMPETITIONS</h2>
+            <p>Challenges designed to test the limits of geological knowledge.</p>
+        </div>
+
+        <div class="grid-container">
+            <article class="event-card reveal" data-tilt tabindex="0">
+                <div class="cs-overlay">
+                    <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                    <span class="lock-text">Coming Soon</span>
+                </div>
+                <span class="card-badge">FLAGSHIP</span>
+                <div class="card-icon"><i class="fas fa-map-location-dot" aria-hidden="true"></i></div>
+                <h3>Indiana Geones</h3>
+                <p>The ultimate mineral treasure hunt. Decode maps and find the deposit.</p>
+                <a href="#" class="card-link">View Details</a>
+            </article>
+
+            <article class="event-card reveal" data-tilt tabindex="0">
+                <div class="cs-overlay">
+                    <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                    <span class="lock-text">Coming Soon</span>
+                </div>
+                <span class="card-badge">LAB</span>
+                <div class="card-icon"><i class="fas fa-microscope" aria-hidden="true"></i></div>
+                <h3>Minrex</h3>
+                <p>High-speed mineral identification challenge.</p>
+                <a href="#" class="card-link">View Details</a>
+            </article>
+
+            <article class="event-card reveal" data-tilt tabindex="0">
+                <div class="cs-overlay">
+                    <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                    <span class="lock-text">Coming Soon</span>
+                </div>
+                <span class="card-badge">FIELD</span>
+                <div class="card-icon"><i class="fas fa-compass" aria-hidden="true"></i></div>
+                <h3>Geodyssey</h3>
+                <p>Field mapping event. Map the terrain stratigraphy (07:00 AM).</p>
+                <a href="#" class="card-link">View Details</a>
+            </article>
+
+            <article class="event-card reveal" data-tilt tabindex="0">
+                <div class="cs-overlay">
+                    <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                    <span class="lock-text">Coming Soon</span>
+                </div>
+                <span class="card-badge">QUIZ</span>
+                <div class="card-icon"><i class="fas fa-brain" aria-hidden="true"></i></div>
+                <h3>TerraWars</h3>
+                <p>National level quiz on Petrology &amp; Stratigraphy.</p>
+                <a href="#" class="card-link">View Details</a>
+            </article>
+
+            <article class="event-card reveal" data-tilt tabindex="0">
+                <div class="cs-overlay">
+                    <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                    <span class="lock-text">Coming Soon</span>
+                </div>
+                <span class="card-badge">CASE STUDY</span>
+                <div class="card-icon"><i class="fas fa-industry" aria-hidden="true"></i></div>
+                <h3>Explique</h3>
+                <p>Industrial case study. Solve real-world Oil &amp; Gas problems.</p>
+                <a href="#" class="card-link">View Details</a>
+            </article>
+
+            <article class="event-card reveal" data-tilt tabindex="0">
+                <div class="cs-overlay">
+                    <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
+                    <span class="lock-text">Coming Soon</span>
+                </div>
+                <span class="card-badge">RESEARCH</span>
+                <div class="card-icon"><i class="fas fa-file-invoice" aria-hidden="true"></i></div>
+                <h3>Posters</h3>
+                <p>Present your research to a panel of distinguished scientists.</p>
+                <a href="#" class="card-link">View Details</a>
+            </article>
+        </div>
+    </section>
+
+    <section id="speakers" class="section">
+        <div class="sec-header">
+            <h2>LEGACY VISIONARIES</h2>
+            <p>Distinguished scientists and leaders who have graced Prithvi.</p>
+        </div>
+        <div class="speakers-grid">
+            <article class="s-card reveal" tabindex="0">
+                <div class="s-img-container">
+                    <img src="./assets/speakers/mrinal-sen.jpg"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Mrinal+Sen&background=0D8ABC&color=fff&size=128'"
+                        alt="Dr. Mrinal K. Sen" class="s-img" loading="lazy">
+                </div>
+                <h3 class="s-name">Dr. Mrinal K. Sen</h3>
+                <p class="s-role">Prof. UT Austin (Geophysics)</p>
+            </article>
+
+            <article class="s-card reveal" tabindex="0">
+                <div class="s-img-container">
+                    <img src="./assets/speakers/saibal-ghosh.jpg"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Saibal+Ghosh&background=0D8ABC&color=fff&size=128'"
+                        alt="Dr. Saibal Ghosh" class="s-img" loading="lazy">
+                </div>
+                <h3 class="s-name">Dr. Saibal Ghosh</h3>
+                <p class="s-role">Geological Survey of India</p>
+            </article>
+
+            <article class="s-card reveal" tabindex="0">
+                <div class="s-img-container">
+                    <img src="./assets/speakers/jayanta-basu.jpg"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Jayanta+Basu&background=0D8ABC&color=fff&size=128'"
+                        alt="Mr. Jayanta Basu" class="s-img" loading="lazy">
+                </div>
+                <h3 class="s-name">Mr. Jayanta Basu</h3>
+                <p class="s-role">Env. Journalist (The Telegraph)</p>
+            </article>
+
+            <article class="s-card reveal" tabindex="0">
+                <div class="s-img-container">
+                    <img src="./assets/speakers/abhimanyu-maitra.jpg"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Abhimanyu+Maitra&background=0D8ABC&color=fff&size=128'"
+                        alt="Mr. Abhimanyu Maitra" class="s-img" loading="lazy">
+                </div>
+                <h3 class="s-name">Mr. Abhimanyu Maitra</h3>
+                <p class="s-role">Industry Leader</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="sec-header">
+            <h2>PREVIOUS ASSOCIATIONS</h2>
+        </div>
+        <div class="logo-wall" role="list">
+            <div class="partner" role="listitem"><i class="fas fa-cube" aria-hidden="true"></i> SCHLUMBERGER</div>
+            <div class="partner" role="listitem"><i class="fas fa-microchip" aria-hidden="true"></i> IR TECHNOLOGY</div>
+            <div class="partner" role="listitem"><i class="fas fa-earth-americas" aria-hidden="true"></i> GSA</div>
+            <div class="partner" role="listitem"><i class="fas fa-flask" aria-hidden="true"></i> CHRISVIN</div>
+            <div class="partner" role="listitem"><i class="fas fa-handshake" aria-hidden="true"></i> DPPL</div>
+        </div>
+    </section>
+
+    <section id="gallery" class="section">
+        <div class="sec-header">
+            <h2>VISUAL ARCHIVE</h2>
+            <p>Moments of discovery, camaraderie, and excellence.</p>
+        </div>
+
+        <div class="gallery-grid" role="list">
+            <figure class="g-item g-span-2 reveal" role="listitem">
+                <img src="./assets/gallery/prithvi-letters.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1531545514256-b1400bc00f31?auto=format&fit=crop&w=800&q=80'"
+                    alt="Students with Prithvi Letters" loading="lazy">
+                <figcaption class="g-overlay">THE SPIRIT OF PRITHVI</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/lamp-lighting.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1514533450685-4493e01d1fdc?auto=format&fit=crop&w=400&q=80'"
+                    alt="Inauguration" loading="lazy">
+                <figcaption class="g-overlay">TRADITION</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/rock-identification.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1581093588401-fbb073d78538?auto=format&fit=crop&w=400&q=80'"
+                    alt="Minrex Competition" loading="lazy">
+                <figcaption class="g-overlay">MINREX CHALLENGE</figcaption>
+            </figure>
+
+            <figure class="g-item g-span-2 g-row-2 reveal" role="listitem">
+                <img src="./assets/gallery/audience-full.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80'"
+                    alt="Full Auditorium" loading="lazy">
+                <figcaption class="g-overlay">SYMPOSIUM</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/guest-lecture.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1544531586-fde5298cdd40?auto=format&fit=crop&w=400&q=80'"
+                    alt="Guest Lecture" loading="lazy">
+                <figcaption class="g-overlay">EXPERT TALKS</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/poster-demo.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=400&q=80'"
+                    alt="Poster Presentation" loading="lazy">
+                <figcaption class="g-overlay">INNOVATION</figcaption>
+            </figure>
+
+            <figure class="g-item g-span-2 reveal" role="listitem">
+                <img src="./assets/gallery/campus-ride.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80'"
+                    alt="Campus Joyride" loading="lazy">
+                <figcaption class="g-overlay">CAMPUS LIFE</figcaption>
+            </figure>
+
+            <figure class="g-item g-span-2 reveal" role="listitem">
+                <img src="./assets/gallery/team-large.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80'"
+                    alt="Prithvi Team" loading="lazy">
+                <figcaption class="g-overlay">THE PRITHVI FAMILY</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/professors-group.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=400&q=80'"
+                    alt="Professors" loading="lazy">
+                <figcaption class="g-overlay">MENTORS</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/treasure-hunt.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1533227297464-60f95652cd27?auto=format&fit=crop&w=400&q=80'"
+                    alt="Treasure Hunt" loading="lazy">
+                <figcaption class="g-overlay">INDIANA GEONES</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/discussion.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1577563908411-5077b6dc7624?auto=format&fit=crop&w=400&q=80'"
+                    alt="Group Discussion" loading="lazy">
+                <figcaption class="g-overlay">BRAINSTORMING</figcaption>
+            </figure>
+
+            <figure class="g-item reveal" role="listitem">
+                <img src="./assets/gallery/prize-giving.jpg"
+                    onerror="this.src='https://images.unsplash.com/photo-1565514020176-6c2235c8784b?auto=format&fit=crop&w=400&q=80'"
+                    alt="Prize Distribution" loading="lazy">
+                <figcaption class="g-overlay">VICTORY</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section id="register" class="section">
+        <div class="reg-wrapper reveal">
+            <h2
+                style="font-family: var(--font-display); font-size: 2.5rem; text-align: center; margin-bottom: 1rem; color: var(--text-main);">
+                JOIN THE EXPEDITION</h2>
+            <p style="text-align: center; color: var(--text-sub); margin-bottom: 3rem;">Secure your spot for April 3rd.
+            </p>
+            <form action="https://formspree.io/f/mpqroaez" method="POST" id="registrationForm">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="fullName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="fullName" class="input-field" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" class="input-field" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="institution">Institution <span class="required">*</span></label>
+                        <input type="text" id="institution" name="institution" class="input-field" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="category">Category <span class="required">*</span></label>
+                        <select id="category" name="category" class="input-field" required>
+                            <option value="">-- Select Category --</option>
+                            <option value="student">Student</option>
+                            <option value="professional">Professional</option>
+                            <option value="researcher">Research Scholar</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">CONFIRM REGISTRATION</button>
+            </form>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-grid">
+            <div class="f-col">
+                <a href="#home" class="logo" style="margin-bottom: 1rem; display: inline-flex;">
+                    <i class="fas fa-layer-group" aria-hidden="true"></i>
+                    <span>PRITHVI 2026</span>
+                </a>
+                <p class="f-text">The premier Earth Science Symposium of IIT Kharagpur. Fostering innovation in geology
+                    and geophysics since 2009.</p>
+                <form class="newsletter" onsubmit="handleNewsletterSubmit(event)">
+                    <input type="email" placeholder="Email for updates" class="news-input" required
+                        aria-label="Newsletter subscription email">
+                    <button type="submit" class="news-btn" aria-label="Subscribe to newsletter">
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="f-col">
+                <h4>QUICK LINKS</h4>
+                <a href="#events" class="f-link">Competitions</a>
+                <a href="#gallery" class="f-link">Visual Archive</a>
+                <a href="#register" class="f-link">Registration</a>
+                <a href="#" class="f-link">Sponsorship Brochure</a>
+            </div>
+
+            <div class="f-col">
+                <h4>CONTACT</h4>
+                <div class="contact-pill">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <span>Mr. Rahul Kumar (Convener)</span>
+                </div>
+                <div class="contact-pill">
+                    <i class="fas fa-phone" aria-hidden="true"></i>
+                    <a href="tel:+919876543210">+91 98765 43210</a>
+                </div>
+                <div class="contact-pill">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <a href="mailto:prithvi@iitkgp.ac.in">prithvi@iitkgp.ac.in</a>
+                </div>
+                <div class="contact-pill">
+                    <i class="fas fa-map-pin" aria-hidden="true"></i>
+                    <span>Dept. Geology, IIT Kharagpur</span>
+                </div>
+            </div>
+
+            <div class="f-col">
+                <h4>LEGAL</h4>
+                <a href="#" class="f-link">Privacy Policy</a>
+                <a href="#" class="f-link">Terms of Service</a>
+                <a href="#" class="f-link">Code of Conduct</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div style="color: var(--text-sub); font-size: 0.9rem;">&copy; 2026 Prithvi IIT Kharagpur. All Rights
+                Reserved.</div>
+            <div class="socials" role="list">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-link"
+                    role="listitem" aria-label="Visit our Facebook page">
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.instagram.com/prithvi.iitkgp" target="_blank" rel="noopener noreferrer"
+                    class="social-link" role="listitem" aria-label="Visit our Instagram profile">
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/prithvi-iit-kgp/" target="_blank" rel="noopener noreferrer"
+                    class="social-link" role="listitem" aria-label="Visit our LinkedIn page">
+                    <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                </a>
+                <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" class="social-link"
+                    role="listitem" aria-label="Visit our Twitter profile">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===========================
+        // 1. THREE.JS 3D EARTH
+        // ===========================
+        let scene, camera, renderer, earth, particles, material, particlesMat;
+        let mouseX = 0;
+        let mouseY = 0;
+
+        function initThreeJS() {
+            try {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                const canvas = document.getElementById('geo-canvas');
+                if (canvas) {
+                    canvas.appendChild(renderer.domElement);
+                }
+
+                // Earth Geometry
+                const geometry = new THREE.IcosahedronGeometry(5, 2);
+                material = new THREE.MeshBasicMaterial({
+                    color: 0x00f2ff,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.1
+                });
+                earth = new THREE.Mesh(geometry, material);
+                scene.add(earth);
+
+                // Particles
+                const particlesGeo = new THREE.BufferGeometry();
+                const particlesCount = 1000;
+                const posArray = new Float32Array(particlesCount * 3);
+
+                for (let i = 0; i < particlesCount * 3; i++) {
+                    posArray[i] = (Math.random() - 0.5) * 15;
+                }
+                particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                particlesMat = new THREE.PointsMaterial({ size: 0.03, color: 0x7c3aed });
+                particles = new THREE.Points(particlesGeo, particlesMat);
+                scene.add(particles);
+
+                camera.position.z = 10;
+
+                animate();
+            } catch (error) {
+                console.error('Three.js initialization failed:', error);
+            }
+        }
+
+
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (earth) {
+                // Base rotation + mouse influence for a more natural feel
+                earth.rotation.y += 0.001 + (mouseX * 0.05);
+                earth.rotation.x += 0.0005 + (mouseY * 0.05);
+            }
+
+            if (particles) {
+                // Particles rotate slightly slower for depth (Parallax effect)
+                particles.rotation.y -= 0.0002;
+                particles.rotation.x += mouseX * 0.01;
+            }
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            }
+        });
+
+        initThreeJS();
+
+        // ===========================
+        // 2. THEME SWITCHER
+        // ===========================
+        const themeBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        function updateThemeIcon(theme) {
+            if (themeBtn) {
+                if (theme === 'light') {
+                    themeBtn.innerHTML = '<i class="fas fa-sun" aria-hidden="true"></i>';
+                } else {
+                    themeBtn.innerHTML = '<i class="fas fa-moon" aria-hidden="true"></i>';
+                }
+            }
+        }
+
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const current = html.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+                updateThemeIcon(next);
+
+                // Update 3D colors
+                if (material && particlesMat) {
+                    if (next === 'light') {
+                        material.color.setHex(0x0284c7);
+                        particlesMat.color.setHex(0x0d9488);
+                    } else {
+                        material.color.setHex(0x00f2ff);
+                        particlesMat.color.setHex(0x7c3aed);
+                    }
+                }
+            });
+        }
+
+        // ===========================
+        // 3. MOBILE MENU
+        // ===========================
+        const hamburger = document.getElementById('hamburger');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        function toggleMenu(show) {
+            if (mobileMenu && hamburger) {
+                const isOpen = show !== undefined ? show : !mobileMenu.classList.contains('active');
+
+                mobileMenu.classList.toggle('active', isOpen);
+                hamburger.setAttribute('aria-expanded', isOpen);
+                mobileMenu.setAttribute('aria-hidden', !isOpen);
+
+                // Use visibility instead of 'hidden' attribute for smoother GSAP/CSS transitions
+                mobileMenu.style.visibility = isOpen ? 'visible' : 'hidden';
+            }
+        }
+
+        if (hamburger) hamburger.addEventListener('click', () => toggleMenu());
+        if (closeMenu) closeMenu.addEventListener('click', () => toggleMenu(false));
+
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => toggleMenu(false));
+        });
+
+        // Close menu on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileMenu?.classList.contains('active')) {
+                toggleMenu(false);
+            }
+        });
+
+        // ===========================
+        // 4. COUNTDOWN TIMER
+        // ===========================
+        function updateCountdown() {
+            const target = new Date("2026-04-03T09:00:00+05:30").getTime();
+
+            countdownTimer = setInterval(() => {
+                const now = new Date().getTime();
+                const diff = target - now;
+
+                if (diff < 0) {
+                    clearInterval(timer);
+                    document.getElementById('d').innerText = '00';
+                    document.getElementById('h').innerText = '00';
+                    document.getElementById('m').innerText = '00';
+                    document.getElementById('s').innerText = '00';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('d').innerText = String(days).padStart(2, '0');
+                document.getElementById('h').innerText = String(hours).padStart(2, '0');
+                document.getElementById('m').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('s').innerText = String(seconds).padStart(2, '0');
+            }, 1000);
+        }
+
+        updateCountdown();
+
+        // ===========================
+        // 5. GSAP SCROLL REVEAL
+        // ===========================
+        if (typeof gsap !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.utils.toArray('.reveal').forEach(elem => {
+                gsap.from(elem, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 1,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: elem,
+                        start: "top 85%",
+                        once: true
+                    }
+                });
+            });
+        }
+
+        // ===========================
+        // 6. VANILLA TILT
+        // ===========================
+        if (typeof VanillaTilt !== 'undefined') {
+            const tiltElements = document.querySelectorAll('[data-tilt]');
+            tiltElements.forEach(element => {
+                VanillaTilt.init(element, {
+                    max: 10,
+                    speed: 400,
+                    glare: true,
+                    "max-glare": 0.5,
+                });
+            });
+        }
+        // ===========================
+        // 7. FORM HANDLING (AJAX for Formspree)
+        // ===========================
+        const registrationForm = document.getElementById('registrationForm');
+
+        if (registrationForm) {
+            registrationForm.addEventListener('submit', async function (e) {
+                e.preventDefault(); // 1. STOP the redirect
+
+                // 2. Get Values
+                const fullName = document.getElementById('fullName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const institution = document.getElementById('institution').value.trim();
+                const category = document.getElementById('category').value;
+
+                // 3. Validate
+                if (!fullName || !email || !institution || !category) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address');
+                    return;
+                }
+
+                // 4. Send Data via AJAX
+                const statusBtn = registrationForm.querySelector('.btn-submit');
+                const originalText = statusBtn.innerText;
+                statusBtn.innerText = "SENDING...";
+                statusBtn.disabled = true;
+
+                try {
+                    const response = await fetch("https://formspree.io/f/mpqroaez", {
+                        method: "POST",
+                        body: new FormData(registrationForm),
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        // SUCCESS!
+                        alert("Registration Successful! Welcome to the Expedition.");
+                        registrationForm.reset();
+                    } else {
+                        // ERROR from Server
+                        const data = await response.json();
+                        if (Object.hasOwn(data, 'errors')) {
+                            alert(data["errors"].map(error => error["message"]).join(", "));
+                        } else {
+                            alert("Oops! There was a problem submitting your form");
+                        }
+                    }
+                } catch (error) {
+                    // NETWORK ERROR
+                    alert("Network error. Please try again.");
+                } finally {
+                    // Reset Button
+                    statusBtn.innerText = originalText;
+                    statusBtn.disabled = false;
+                }
+            });
+        }
+        // ===========================
+        // 8. NEWSLETTER SUBSCRIPTION
+        // ===========================
+        function handleNewsletterSubmit(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('.news-input').value.trim();
+
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            console.log('Newsletter subscription:', { email, timestamp: new Date().toISOString() });
+            alert('Thank you for subscribing! Check your email for updates.');
+            e.target.reset();
+        }
+
+        window.handleNewsletterSubmit = handleNewsletterSubmit;
+
+        // ===========================
+        // 9. SMOOTH SCROLL BEHAVIOR
+        // ===========================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href === '#') {
+                    e.preventDefault();
+                    return;
+                }
+
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    const offsetTop = target.offsetTop - 80;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ===========================
+        // 10. ERROR LOGGING
+        // ===========================
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+        });
+    </script>
+</body>
+
+</html>
