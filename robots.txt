@@ -1,0 +1,9 @@
+# Allow all search engines to crawl the whole site
+User-agent: *
+Allow: /
+
+# Hide specific folders (if you had a private admin folder)
+# Disallow: /admin/
+
+# Link to your sitemap if you have one
+Sitemap: https://krish686.github.io/prithvi-26/
