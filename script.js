@@ -177,7 +177,7 @@ function updateCountdown() {
 
     const d = document.getElementById('d');
     if (!d) return;
-    
+
     const target = new Date("2026-04-03T09:00:00+05:30").getTime();
 
     countdownTimer = setInterval(() => {
@@ -258,11 +258,16 @@ const firebaseConfig = {
 
 // Initialize Firebase only once
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    firebase.initializeApp(firebaseConfig);
+} else if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    // If already initialized, use the existing app
+    firebase.app();
 }
+
 const auth = firebase.auth();
+// Force the usage of the device language for the popup
+auth.useDeviceLanguage();
+
 const db = firebase.firestore();
 
 // --- STATE MANAGEMENT ---
@@ -504,26 +509,66 @@ async function handleLogin(e) {
 
 // 2. Handle Google Login
 async function handleGoogleLogin() {
+    // 1. Ensure Auth is ready
+    if (!auth) {
+        console.error("Firebase Auth not initialized");
+        showToast("Authentication Error: Service not ready.", "error");
+        return;
+    }
+
     const provider = new firebase.auth.GoogleAuthProvider();
+    
+    // Force account selection to fix "popup closed" issues
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
 
     try {
+        // 2. Attempt Sign In
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
-        // Check if this is a new user (optional: check firestore)
+        // 3. Check if user already exists in Firestore
         const doc = await db.collection("registrations").doc(user.uid).get();
 
         if (!doc.exists) {
-            // If new Google user, force them to fill details
-            showToast("Google Sign-In Successful! Please complete your registration details.", "success");
+            // NEW USER: Redirect to registration
+            showToast("Google Sign-In Successful! Please complete your details.", "success");
             switchView('register');
-            nextStep(2); // Skip email/pass step
+            
+            // Auto-fill email
+            const emailField = document.getElementById('regEmail');
+            if(emailField) {
+                emailField.value = user.email;
+                emailField.disabled = true; // Lock the field
+            }
+            
+            nextStep(2); // Skip the password step
         } else {
-            showToast("Welcome back, " + user.displayName, "success");
+            // EXISTING USER: Welcome back
+            showToast("Welcome back, " + (user.displayName || "Explorer"), "success");
             closeAuthModal();
         }
+
     } catch (error) {
-        showToast("Google Sign-In Error: " + error.message, "error");
+        // 4. Enhanced Error Handling
+        console.error("Full Google Auth Error:", error);
+
+        let errorMessage = "Google Sign-In Failed.";
+
+        if (error.code === 'auth/internal-error') {
+            errorMessage = "Configuration Error: Please set the 'Support Email' in Firebase Console > Project Settings.";
+        } else if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = "Sign-in cancelled by user.";
+        } else if (error.code === 'auth/popup-blocked') {
+            errorMessage = "Popup blocked! Please allow popups for this site.";
+        } else if (error.code === 'auth/unauthorized-domain') {
+            errorMessage = "Domain not authorized. Add krish686.github.io to Firebase Console.";
+        } else {
+            errorMessage = error.message; // Show the raw message for other errors
+        }
+
+        showToast(errorMessage, "error");
     }
 }
 
