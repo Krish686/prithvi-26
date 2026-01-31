@@ -297,29 +297,50 @@ if (registrationForm) {
         }
     });
 }
+
 // ===========================
-// 8. NEWSLETTER SUBSCRIPTION
+// 8. NEWSLETTER SUBSCRIPTION (Updated for EmailJS)
 // ===========================
-function handleNewsletterSubmit(e) {
+async function handleNewsletterSubmit(e) {
     e.preventDefault();
-    const email = e.target.querySelector('.news-input').value.trim();
 
-    if (!email) {
-        alert('Please enter an email address');
-        return;
+    const form = e.target;
+    const emailInput = form.querySelector('.news-input');
+    const btn = form.querySelector('.news-btn');
+    const originalIcon = btn.innerHTML; // Store the arrow icon
+
+    // 1. Validation
+    const email = emailInput.value.trim();
+    if (!email) return;
+
+    // 2. UI Loading State (Professional Touch)
+    // Disable button and show spinner to prevent double-submit
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    // 3. EmailJS Service Parameters
+    const serviceID = 'service_3rh241b';
+    const templateID = 'template_x6ect2o';
+
+    try {
+        // Send the form directly using the form element
+        await emailjs.sendForm(serviceID, templateID, form);
+
+        // 4. Success Feedback
+        alert('Welcome to the Expedition! Please check your inbox for confirmation.');
+        form.reset();
+
+    } catch (error) {
+        console.error('Newsletter Error:', error);
+        alert('Transmission failed. Please check your connection and try again.');
+    } finally {
+        // 5. Reset UI State
+        btn.disabled = false;
+        btn.innerHTML = originalIcon;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address');
-        return;
-    }
-
-    console.log('Newsletter subscription:', { email, timestamp: new Date().toISOString() });
-    alert('Thank you for subscribing! Check your email for updates.');
-    e.target.reset();
 }
 
+// Make sure it is globally available since you use onsubmit in HTML
 window.handleNewsletterSubmit = handleNewsletterSubmit;
 
 // ===========================

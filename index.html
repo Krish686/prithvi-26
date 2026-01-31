@@ -10,7 +10,7 @@
     <meta name="color-scheme" content="dark light">
     <title>PRITHVI 2026 | The Geological Zenith</title>
 
-    
+
     <link rel="canonical" href="https://krish686.github.io/prithvi-26/">
 
     <!-- Open Graph -->
@@ -45,7 +45,15 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./style.css">
 
-
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+    </script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init({
+                publicKey: "stJuZgvSUcozIZtvrF",
+            });
+        })();
+    </script>
 
     <script>
         // This prevents the page from flashing dark mode before switching to light
@@ -406,9 +414,9 @@
                 </a>
                 <p class="f-text">The premier Earth Science Symposium of IIT Kharagpur. Fostering innovation in geology
                     and geophysics since 2009.</p>
-                <form class="newsletter" onsubmit="handleNewsletterSubmit(event)">
-                    <input type="email" placeholder="Email for updates" class="news-input" required
-                        aria-label="Newsletter subscription email">
+                <form class="newsletter" id="newsletterForm" onsubmit="handleNewsletterSubmit(event)">
+                    <input type="email" name="user_email" id="newsEmail" placeholder="Email for updates"
+                        class="news-input" required aria-label="Newsletter subscription email">
                     <button type="submit" class="news-btn" aria-label="Subscribe to newsletter">
                         <i class="fas fa-arrow-right" aria-hidden="true"></i>
                     </button>
