@@ -20,7 +20,7 @@ function initThreeJS() {
         }
 
         // Earth Geometry
-        const geometry = new THREE.IcosahedronGeometry(5, 2);
+        const geometry = new THREE.IcosahedronGeometry(5, 15);
         material = new THREE.MeshBasicMaterial({
             color: 0x00f2ff,
             wireframe: true,
@@ -60,6 +60,7 @@ document.addEventListener('mousemove', (e) => {
 
 function animate() {
     requestAnimationFrame(animate);
+    material.opacity = 0.1 + Math.sin(Date.now() * 0.001) * 0.05;
 
     if (earth) {
         // Base rotation + mouse influence for a more natural feel

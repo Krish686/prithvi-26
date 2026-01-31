@@ -6,4 +6,4 @@ Allow: /
 # Disallow: /admin/
 
 # Link to your sitemap if you have one
-Sitemap: https://krish686.github.io/prithvi-26/
+Sitemap: https://krish686.github.io/prithvi-26/sitemap.xml

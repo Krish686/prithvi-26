@@ -461,6 +461,8 @@ nav {
 
 .event-card:has(.cs-overlay) {
     cursor: allowed;
+    pointer-events: none; 
+    user-select: none;
 }
 
 .event-card:has(.cs-overlay) a,
@@ -1088,6 +1090,7 @@ footer {
         display: flex;
         flex-direction: column;
         align-items: center;
+        flex-grow: 1;
         /* Centers the titles and text */
     }
 
