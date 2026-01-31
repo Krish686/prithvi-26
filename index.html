@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="PRITHVI 2026 - The 18th International Earth Science Symposium at IIT Kharagpur. A premier geological competition and academic conference.">
+    <meta name="description" content="PRITHVI 2026 - The 18th International Earth Science Symposium at IIT Kharagpur.">
     <meta name="theme-color" content="#030305">
     <meta name="color-scheme" content="dark light">
     <title>PRITHVI 2026 | The Geological Zenith</title>
@@ -14,18 +13,16 @@
 
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self' https:; 
-    script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; 
+    script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://apis.google.com; 
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
     font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
     img-src 'self' data: https: blob:; 
-    connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://api.emailjs.com;">
+    frame-src 'self' https://*.firebaseapp.com https://*.googleapis.com;
+    connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://api.emailjs.com https://*.firebaseapp.com https://accounts.google.com;">
 
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" as="style">
-
-
     <link rel="canonical" href="https://krish686.github.io/prithvi-26/">
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://krish686.github.io/prithvi-26/">
     <meta property="og:title" content="PRITHVI 2026 | The Geological Zenith">
@@ -33,20 +30,16 @@
         content="Join the 18th International Earth Science Symposium at IIT Kharagpur. April 3-5, 2026.">
     <meta property="og:image" content="https://krish686.github.io/prithvi-26/assets/logos/og-image.jpg">
 
-    <!-- Favicon -->
     <link rel="icon" href="./assets/logos/favicon.ico?v=2" type="image/x-icon">
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;500;600;700&family=Syne:wght@400;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- Font Awesome Latest CDN (v6.7.2) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Three.js, GSAP, Vanilla Tilt -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"
@@ -54,26 +47,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"
         crossorigin="anonymous"></script>
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="./style.css">
 
-    <!-- Firebase  -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="text/javascript">
         (function () {
-            emailjs.init({
-                publicKey: "tJuZgvSUcozIZtvrF",
-            });
+            emailjs.init({ publicKey: "tJuZgvSUcozIZtvrF" });
         })();
     </script>
 
     <script>
-        // This prevents the page from flashing dark mode before switching to light
         (function () {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);

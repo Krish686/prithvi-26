@@ -453,61 +453,6 @@ async function submitRegistration() {
 // ADD THIS SECTION: LOGIN & AUTH HANDLERS
 // ===========================
 
-// Optimized Login Handler with Verification Check
-async function handleLogin(e) {
-    e.preventDefault();
-
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPass').value;
-    const btn = document.querySelector('#loginForm .btn-submit');
-    const originalText = btn.innerText;
-
-    btn.innerText = "VERIFYING...";
-    btn.disabled = true;
-
-    try {
-        // 1. Attempt Sign In
-        const userCredential = await auth.signInWithEmailAndPassword(email, pass);
-        const user = userCredential.user;
-
-        // 2. CRITICAL: Check Email Verification
-        if (!user.emailVerified) {
-            await auth.signOut(); // Kick them out immediately
-            showToast("Access Denied: Please verify your email address first.\n\nCheck your inbox (and spam folder) for the verification link.", "error");
-
-            btn.innerText = originalText;
-            btn.disabled = false;
-            return; // Stop execution
-        }
-
-        // 3. Success
-        showToast("Login Successful! Welcome back.", "success");
-        closeAuthModal();
-
-    } catch (error) {
-        console.error("Login Error:", error);
-
-        let msg = "Login failed. Please try again.";
-
-        // SPECIFIC ERROR MESSAGES
-        if (error.code === "auth/user-not-found") {
-            msg = "No account found with this email. Please register first.";
-        } else if (error.code === "auth/wrong-password") {
-            msg = "Incorrect credentials. Please check your password.";
-        } else if (error.code === "auth/invalid-email") {
-            msg = "Invalid email format.";
-        } else if (error.code === "auth/too-many-requests") {
-            msg = "Too many failed attempts. Try again later.";
-        }
-
-        showToast(msg, "error");
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
-}
-
-// 2. Handle Google Login
 async function handleGoogleLogin() {
     // 1. Ensure Auth is ready
     if (!auth) {
@@ -517,8 +462,6 @@ async function handleGoogleLogin() {
     }
 
     const provider = new firebase.auth.GoogleAuthProvider();
-    
-    // Force account selection to fix "popup closed" issues
     provider.setCustomParameters({
         prompt: 'select_account'
     });
@@ -534,19 +477,26 @@ async function handleGoogleLogin() {
         if (!doc.exists) {
             // NEW USER: Redirect to registration
             showToast("Google Sign-In Successful! Please complete your details.", "success");
+
+            // First switch the view (this resets step to 1)
             switchView('register');
-            
-            // Auto-fill email
-            const emailField = document.getElementById('regEmail');
-            if(emailField) {
-                emailField.value = user.email;
-                emailField.disabled = true; // Lock the field
-            }
-            
-            nextStep(2); // Skip the password step
+
+            // Wait a brief moment for the DOM to update, then force State 2
+            setTimeout(() => {
+                // Auto-fill email
+                const emailField = document.getElementById('regEmail');
+                if (emailField) {
+                    emailField.value = user.email;
+                    emailField.disabled = true; // Lock the field
+                }
+
+                // Manually skip to Step 2
+                nextStep(2);
+            }, 100);
+
         } else {
             // EXISTING USER: Welcome back
-            showToast("Welcome back, " + (user.displayName || "Explorer"), "success");
+            showToast("Welcome back, " + (doc.data().fullName || "Explorer"), "success");
             closeAuthModal();
         }
 
@@ -557,15 +507,17 @@ async function handleGoogleLogin() {
         let errorMessage = "Google Sign-In Failed.";
 
         if (error.code === 'auth/internal-error') {
-            errorMessage = "Configuration Error: Please set the 'Support Email' in Firebase Console > Project Settings.";
+            errorMessage = "Config Error: Check Firebase Project Settings > Support Email.";
         } else if (error.code === 'auth/popup-closed-by-user') {
             errorMessage = "Sign-in cancelled by user.";
         } else if (error.code === 'auth/popup-blocked') {
             errorMessage = "Popup blocked! Please allow popups for this site.";
         } else if (error.code === 'auth/unauthorized-domain') {
-            errorMessage = "Domain not authorized. Add krish686.github.io to Firebase Console.";
+            errorMessage = "Domain Error: Add 'krish686.github.io' to Firebase Console > Auth > Settings > Authorized Domains.";
+        } else if (error.code === 'auth/operation-not-allowed') {
+            errorMessage = "Google Auth is not enabled in Firebase Console.";
         } else {
-            errorMessage = error.message; // Show the raw message for other errors
+            errorMessage = error.message;
         }
 
         showToast(errorMessage, "error");
