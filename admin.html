@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prithvi Admin Portal</title>
+    <link rel="stylesheet" href="./style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
+    <style>
+        /* Admin specific styles */
+        body {
+            padding: 2rem;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .login-box {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: var(--glass);
+            font-size: 0.9rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .data-table th {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .logout-btn {
+            background: var(--accent);
+            float: right;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="noise-overlay"></div>
+
+    <div id="loginSection" class="login-box">
+        <h2 style="margin-bottom: 1.5rem; color: var(--primary);">ADMIN ACCESS</h2>
+        <input type="email" id="adminEmail" class="input-field" placeholder="Admin Email" style="margin-bottom: 1rem;">
+        <input type="password" id="adminPass" class="input-field" placeholder="Password" style="margin-bottom: 1rem;">
+        <button onclick="adminLogin()" class="btn-submit">LOGIN</button>
+    </div>
+
+    <div id="dashboardSection" class="admin-container hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="font-family: var(--font-display);">REGISTRATIONS</h1>
+            <button onclick="logout()" class="btn-primary logout-btn">LOGOUT</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Institution</th>
+                        <th>Year</th>
+                        <th>Transaction ID</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaQONyUOTMdPvG_1ovVuYiJH17ta82V90",
+            authDomain: "prithvi-26.firebaseapp.com",
+            projectId: "prithvi-26",
+            storageBucket: "prithvi-26.firebasestorage.app",
+            messagingSenderId: "823596921518",
+            appId: "1:823596921518:web:88af0a6faf31f4d72eb33f"
+        };
+
+        // Initialize only if not already initialized
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // --- 2. SESSION MANAGEMENT (Fixes Security & Refresh Issue) ---
+        // Replace the auth.onAuthStateChanged block with this:
+        auth.onAuthStateChanged((user) => {
+            const loginSection = document.getElementById('loginSection');
+            const dashboardSection = document.getElementById('dashboardSection');
+
+            // DEFINE YOUR ADMIN EMAILS HERE
+            const adminEmails = ["prithvi@iitkgp.ac.in", "admin@test.com","prithvi.iitkgp.26@gmail.com"];
+
+            if (user && adminEmails.includes(user.email)) {
+                // User is authenticated AND is an admin
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                loadData();
+            } else {
+                // User is logged out OR is not an admin
+                if (user) {
+                    alert("Access Restricted: You do not have admin privileges.");
+                    auth.signOut(); // Kick them out
+                }
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+            }
+        });
+
+        // --- 3. LOGIN LOGIC ---
+        function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            const btn = document.querySelector('.btn-submit');
+
+            btn.innerText = "VERIFYING...";
+            btn.disabled = true;
+
+            auth.signInWithEmailAndPassword(email, pass)
+                .catch((error) => {
+                    alert("Access Denied: " + error.message);
+                    btn.innerText = "LOGIN";
+                    btn.disabled = false;
+                });
+        }
+
+        // --- 4. FETCH DATA LOGIC ---
+        function loadData() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">Loading secure data...</td></tr>';
+
+            db.collection("registrations").orderBy("timestamp", "desc").get()
+                .then((querySnapshot) => {
+                    tableBody.innerHTML = "";
+                    if (querySnapshot.empty) {
+                        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No registrations found.</td></tr>';
+                        return;
+                    }
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const docId = doc.id;
+                        // Safety check for timestamp
+                        const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : "N/A";
+
+                        // Sanitize input to prevent XSS (Production Enhancement)
+                        const safeName = escapeHtml(data.fullName);
+                        const safeEmail = escapeHtml(data.email);
+                        const safeTxn = escapeHtml(data.paymentTxn || 'PENDING');
+
+                        const row = `
+                <tr>
+                    <td>${safeName}</td>
+                    <td>${data.phone}</td>
+                    <td><a href="mailto:${safeEmail}" style="color:var(--primary)">${safeEmail}</a></td>
+                    <td>${data.institution}</td>
+                    <td>${data.year}</td>
+                    <td style="font-family:monospace; color:var(--primary); font-weight:bold;">${safeTxn}</td>
+                    <td>${date}</td>
+                    <td style="text-align: center;">
+                        <button onclick="deleteRegistration('${docId}', '${safeName}')" 
+                                style="background: rgba(255,0,0,0.2); border: 1px solid red; color: red; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition:0.3s;"
+                                onmouseover="this.style.background='red'; this.style.color='white'"
+                                onmouseout="this.style.background='rgba(255,0,0,0.2)'; this.style.color='red'">
+                            <i class="fas fa-trash"></i> DELETE
+                        </button>
+                    </td>
+                </tr>
+                `;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading data:", error);
+                    tableBody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">Error loading data: ${error.message}<br>Check Firestore Rules.</td></tr>`;
+                });
+        }
+
+        // --- 5. DELETE FUNCTION ---
+        function deleteRegistration(docId, name) {
+            if (!confirm(`⚠️ Are you sure you want to delete the registration for:\n\n${name}`)) {
+                return;
+            }
+            db.collection("registrations").doc(docId).delete()
+                .then(() => {
+                    loadData(); // Refresh table without reload
+                })
+                .catch((error) => {
+                    alert("Error: " + error.message);
+                });
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        // Helper to prevent HTML Injection
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+
+</html>

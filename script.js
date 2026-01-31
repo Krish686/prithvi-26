@@ -58,18 +58,24 @@ document.addEventListener('mousemove', (e) => {
     mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
 });
 
+// Animate Loop
 function animate() {
     requestAnimationFrame(animate);
-    material.opacity = 0.1 + Math.sin(Date.now() * 0.001) * 0.05;
+
+    // Battery Saver: Don't render if tab is hidden
+    if (document.hidden) return;
+
+    // Safety Checks: Prevent crash if assets aren't loaded yet
+    if (material) {
+        material.opacity = 0.1 + Math.sin(Date.now() * 0.001) * 0.05;
+    }
 
     if (earth) {
-        // Base rotation + mouse influence for a more natural feel
         earth.rotation.y += 0.001 + (mouseX * 0.05);
         earth.rotation.x += 0.0005 + (mouseY * 0.05);
     }
 
     if (particles) {
-        // Particles rotate slightly slower for depth (Parallax effect)
         particles.rotation.y -= 0.0002;
         particles.rotation.x += mouseX * 0.01;
     }
@@ -145,10 +151,8 @@ function toggleMenu(show) {
 
         mobileMenu.classList.toggle('active', isOpen);
         hamburger.setAttribute('aria-expanded', isOpen);
-        mobileMenu.setAttribute('aria-hidden', !isOpen);
+        mobileMenu.setAttribute('aria-hidden', !isOpen)
 
-        // Use visibility instead of 'hidden' attribute for smoother GSAP/CSS transitions
-        mobileMenu.style.visibility = isOpen ? 'visible' : 'hidden';
     }
 }
 
@@ -170,6 +174,10 @@ document.addEventListener('keydown', (e) => {
 // 4. COUNTDOWN TIMER
 // ===========================
 function updateCountdown() {
+
+    const d = document.getElementById('d');
+    if (!d) return;
+    
     const target = new Date("2026-04-03T09:00:00+05:30").getTime();
 
     countdownTimer = setInterval(() => {
@@ -233,70 +241,545 @@ if (typeof VanillaTilt !== 'undefined') {
         });
     });
 }
+
 // ===========================
-// 7. FORM HANDLING (AJAX for Formspree)
+// 7. POPUP AUTH SYSTEM (SECURE & PROFILE)
 // ===========================
-const registrationForm = document.getElementById('registrationForm');
 
-if (registrationForm) {
-    registrationForm.addEventListener('submit', async function (e) {
-        e.preventDefault(); // 1. STOP the redirect
+// --- CONFIGURATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyAaQONyUOTMdPvG_1ovVuYiJH17ta82V90",
+    authDomain: "prithvi-26.firebaseapp.com",
+    projectId: "prithvi-26",
+    storageBucket: "prithvi-26.firebasestorage.app",
+    messagingSenderId: "823596921518",
+    appId: "1:823596921518:web:88af0a6faf31f4d72eb33f"
+};
 
-        // 2. Get Values
-        const fullName = document.getElementById('fullName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const institution = document.getElementById('institution').value.trim();
-        const category = document.getElementById('category').value;
+// Initialize Firebase only once
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-        // 3. Validate
-        if (!fullName || !email || !institution || !category) {
-            alert('Please fill all required fields');
-            return;
+// --- STATE MANAGEMENT ---
+let currentUser = null;
+
+// 1. Listen for Auth Changes (Auto-update Button)
+// 1. Listen for Auth Changes
+auth.onAuthStateChanged(async (user) => {
+    const navBtn = document.getElementById('navAuthBtn');
+    const mobileBtn = document.getElementById('mobileAuthBtn');
+
+    // STRICT CHECK: User must be logged in AND Verified
+    if (user && user.emailVerified) {
+        // User is Logged In & Verified -> SHOW PROFILE
+        currentUser = user;
+        const profileIcon = '<i class="fas fa-user-circle"></i> PROFILE';
+        if (navBtn) navBtn.innerHTML = profileIcon;
+        if (mobileBtn) mobileBtn.innerHTML = profileIcon;
+    } else {
+        // User is Logged Out OR Unverified -> SHOW LOGIN
+        currentUser = null;
+
+        // If user is technically logged in but unverified, force sign out (optional but safe)
+        if (user && !user.emailVerified) {
+            auth.signOut();
         }
+
+        if (navBtn) navBtn.innerHTML = 'LOGIN';
+        if (mobileBtn) mobileBtn.innerHTML = 'Login';
+    }
+});
+
+// --- MODAL CONTROLS ---
+function handleAuthClick() {
+    if (currentUser) {
+        openAuthModal('profile');
+    } else {
+        openAuthModal('login');
+    }
+}
+
+function openAuthModal(view = 'login') {
+    document.getElementById('authModal').classList.add('active');
+    switchView(view);
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('active');
+}
+
+function switchView(view) {
+    // Hide ALL views
+    ['loginView', 'registerView', 'profileView', 'forgotPassView'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    // Reset forms
+    document.getElementById('loginForm').reset();
+
+    // Show requested view
+    if (view === 'login') {
+        document.getElementById('loginView').classList.remove('hidden');
+    } else if (view === 'register') {
+        document.getElementById('registerView').classList.remove('hidden');
+        currentStep = 1;
+        updateSteps();
+    } else if (view === 'profile') {
+        document.getElementById('profileView').classList.remove('hidden');
+        loadUserProfile();
+    } else if (view === 'forgot') {
+        document.getElementById('forgotPassView').classList.remove('hidden');
+    }
+}
+
+// --- REGISTRATION LOGIC (With Phone & Strict Security) ---
+let currentStep = 1;
+
+function nextStep(step) {
+    const user = auth.currentUser;
+    const isGoogleAuth = user && user.providerData[0].providerId === 'google.com';
+
+    // STEP 1 CHECK: Email & Password
+    if (step === 2 && !isGoogleAuth) {
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPass').value;
+
+        // Email Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            alert('Please enter a valid email address');
+            showToast("Please enter a valid email address.", "error");
             return;
         }
 
-        // 4. Send Data via AJAX
-        const statusBtn = registrationForm.querySelector('.btn-submit');
-        const originalText = statusBtn.innerText;
-        statusBtn.innerText = "SENDING...";
-        statusBtn.disabled = true;
+        // PASSWORD SECURITY CHECK (Min 8 chars, Number, Symbol)
+        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-        try {
-            const response = await fetch("https://formspree.io/f/xojwpprk", {
-                method: "POST",
-                body: new FormData(registrationForm),
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                // SUCCESS!
-                alert("Registration Successful! Welcome to the Expedition.");
-                registrationForm.reset();
-            } else {
-                // ERROR from Server
-                const data = await response.json();
-                if (Object.hasOwn(data, 'errors')) {
-                    alert(data["errors"].map(error => error["message"]).join(", "));
-                } else {
-                    alert("Oops! There was a problem submitting your form");
-                }
-            }
-        } catch (error) {
-            // NETWORK ERROR
-            alert("Network error. Please try again.");
-        } finally {
-            // Reset Button
-            statusBtn.innerText = originalText;
-            statusBtn.disabled = false;
+        if (!passRegex.test(pass)) {
+            showToast("Password Request:\n- Min 8 characters\n- At least one Uppercase (A-Z)\n- At least one Lowercase (a-z)\n- At least one Number (0-9)\n- At least one Symbol (@$!%*?&)", "error");
+            return;
         }
+    }
+
+    // STEP 2 CHECK: Details & Phone
+    if (step === 3) {
+        const name = document.getElementById('regName').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const inst = document.getElementById('regInst').value.trim();
+
+        if (!name || !inst) {
+            showToast("Please fill in your Name and Institution.", "error");
+            return;
+        }
+
+        // Basic Phone Validation
+        if (phone.length < 10) {
+            showToast("Please enter a valid Phone Number.", "error");
+            return;
+        }
+    }
+
+    currentStep = step;
+    updateSteps();
+}
+
+function prevStep(step) {
+    currentStep = step;
+    updateSteps();
+}
+
+function updateSteps() {
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById(`step${currentStep}`).classList.remove('hidden');
+}
+
+// --- SUBMISSION HANDLERS ---
+async function submitRegistration() {
+    const txn = document.getElementById('regTxn').value;
+    if (!txn || txn.length < 5) { showToast("Please enter a valid Transaction ID.", "error"); return; }
+
+    const submitBtn = document.querySelector('#step3 .btn-submit');
+    submitBtn.innerText = "PROCESSING...";
+    submitBtn.disabled = true;
+
+    try {
+        let user = auth.currentUser;
+        const email = document.getElementById('regEmail').value;
+
+        // If not logged in via Google, create account
+        if (!user) {
+            const pass = document.getElementById('regPass').value;
+            const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+            user = userCredential.user;
+            await user.sendEmailVerification();
+        }
+
+        // Save Data to Firestore (Includes new Phone field)
+        await db.collection("registrations").doc(user.uid).set({
+            fullName: document.getElementById('regName').value,
+            phone: document.getElementById('regPhone').value, // SAVING PHONE NUMBER
+            institution: document.getElementById('regInst').value,
+            year: document.getElementById('regYear').value,
+            paymentTxn: txn,
+            email: user.email,
+            verified: false,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast("Registration Complete! Welcome to Prithvi.", "success");
+        closeAuthModal();
+
+    } catch (error) {
+        showToast("Registration Error: " + error.message, "error");
+    } finally {
+        submitBtn.innerText = "COMPLETE";
+        submitBtn.disabled = false;
+    }
+}
+
+// ===========================
+// ADD THIS SECTION: LOGIN & AUTH HANDLERS
+// ===========================
+
+// Optimized Login Handler with Verification Check
+async function handleLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    const btn = document.querySelector('#loginForm .btn-submit');
+    const originalText = btn.innerText;
+
+    btn.innerText = "VERIFYING...";
+    btn.disabled = true;
+
+    try {
+        // 1. Attempt Sign In
+        const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+        const user = userCredential.user;
+
+        // 2. CRITICAL: Check Email Verification
+        if (!user.emailVerified) {
+            await auth.signOut(); // Kick them out immediately
+            showToast("Access Denied: Please verify your email address first.\n\nCheck your inbox (and spam folder) for the verification link.", "error");
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return; // Stop execution
+        }
+
+        // 3. Success
+        showToast("Login Successful! Welcome back.", "success");
+        closeAuthModal();
+
+    } catch (error) {
+        console.error("Login Error:", error);
+
+        let msg = "Login failed. Please try again.";
+
+        // SPECIFIC ERROR MESSAGES
+        if (error.code === "auth/user-not-found") {
+            msg = "No account found with this email. Please register first.";
+        } else if (error.code === "auth/wrong-password") {
+            msg = "Incorrect credentials. Please check your password.";
+        } else if (error.code === "auth/invalid-email") {
+            msg = "Invalid email format.";
+        } else if (error.code === "auth/too-many-requests") {
+            msg = "Too many failed attempts. Try again later.";
+        }
+
+        showToast(msg, "error");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+// 2. Handle Google Login
+async function handleGoogleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+
+        // Check if this is a new user (optional: check firestore)
+        const doc = await db.collection("registrations").doc(user.uid).get();
+
+        if (!doc.exists) {
+            // If new Google user, force them to fill details
+            showToast("Google Sign-In Successful! Please complete your registration details.", "success");
+            switchView('register');
+            nextStep(2); // Skip email/pass step
+        } else {
+            showToast("Welcome back, " + user.displayName, "success");
+            closeAuthModal();
+        }
+    } catch (error) {
+        showToast("Google Sign-In Error: " + error.message, "error");
+    }
+}
+
+// 3. Handle Password Reset
+async function handlePasswordResetSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('resetEmail').value.trim();
+    const btn = e.target.querySelector('button');
+    const originalText = btn.innerText;
+
+    btn.innerText = "CHECKING...";
+    btn.disabled = true;
+
+    try {
+        // 1. Check if user exists first
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+
+        if (signInMethods.length === 0) {
+            showToast("This email is not registered. Please create an account first.", "error");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        // 2. If exists, send email
+        await auth.sendPasswordResetEmail(email);
+        showToast("Reset link sent! Check your inbox.", "success");
+        switchView('login');
+
+    } catch (error) {
+        console.error("Reset Error:", error);
+        showToast("Error: " + error.message, "error");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+window.handlePasswordResetSubmit = handlePasswordResetSubmit;
+
+// EXPORT TO WINDOW (Crucial for HTML onclick to work)
+window.handleLogin = handleLogin;
+window.handleGoogleLogin = handleGoogleLogin;
+window.resetPassword = resetPassword;
+
+// --- VIEW CONTROLS ---
+function switchProfileTab(tab) {
+    const detailsTab = document.getElementById('tabDetails');
+    const securityTab = document.getElementById('tabSecurity');
+    const tabs = document.querySelectorAll('.tab-btn');
+
+    if (tab === 'details') {
+        detailsTab.classList.remove('hidden');
+        securityTab.classList.add('hidden');
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+    } else {
+        detailsTab.classList.add('hidden');
+        securityTab.classList.remove('hidden');
+        tabs[0].classList.remove('active');
+        tabs[1].classList.add('active');
+    }
+}
+
+function toggleEditMode(enable) {
+    const inputs = document.querySelectorAll('#tabDetails .input-field');
+    const actions = document.getElementById('editActions');
+    const editBtn = document.getElementById('editProfileBtn');
+
+    inputs.forEach(input => input.disabled = !enable);
+
+    if (enable) {
+        actions.classList.remove('hidden');
+        editBtn.classList.add('hidden');
+    } else {
+        actions.classList.add('hidden');
+        editBtn.classList.remove('hidden');
+        loadUserProfile(); // Reset data if canceled
+    }
+}
+
+// --- DATA LOADING ---
+async function loadUserProfile() {
+    if (!currentUser) return;
+
+    try {
+        const doc = await db.collection("registrations").doc(currentUser.uid).get();
+        if (doc.exists) {
+            const data = doc.data();
+
+            // Text Details
+            document.getElementById('profileNameDisplay').innerText = data.fullName || "Explorer";
+            document.getElementById('profileEmailDisplay').innerText = currentUser.email;
+
+            // Form Fields
+            document.getElementById('profName').value = data.fullName || "";
+            document.getElementById('profPhone').value = data.phone || "";
+            document.getElementById('profInst').value = data.institution || "";
+            document.getElementById('profYear').value = data.year || "1st";
+
+            // --- DIGITAL ID UPDATE ---
+            document.getElementById('cardName').innerText = data.fullName || "EXPLORER";
+            document.getElementById('cardId').innerText = `ID: PRITHVI-${currentUser.uid.substring(0, 6).toUpperCase()}`;
+        }
+    } catch (error) {
+        console.error("Profile Load Error:", error);
+        showToast("Failed to load profile data", "error");
+    }
+}
+// --- RE-AUTHENTICATION SYSTEM ---
+let reauthResolve = null;
+let reauthReject = null;
+
+function promptReauth() {
+    return new Promise((resolve, reject) => {
+        const modal = document.getElementById('reauthModal');
+        const passInput = document.getElementById('reauthPass');
+
+        // Setup UI
+        passInput.value = '';
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+
+        // Store callbacks
+        reauthResolve = resolve;
+        reauthReject = reject;
     });
 }
+
+function cancelReauth() {
+    document.getElementById('reauthModal').classList.remove('active');
+    document.getElementById('reauthModal').classList.add('hidden');
+    if (reauthReject) reauthReject(new Error("Cancelled by user"));
+}
+
+async function confirmReauth() {
+    const pass = document.getElementById('reauthPass').value;
+    const modal = document.getElementById('reauthModal');
+
+    if (!pass) {
+        showToast("Please enter your password.", "error");
+        return;
+    }
+
+    try {
+        // 1. Check Auth Provider
+        const providerId = currentUser.providerData[0].providerId;
+
+        if (providerId === 'password') {
+            // Email/Password Re-auth
+            const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pass);
+            await currentUser.reauthenticateWithCredential(cred);
+        } else if (providerId === 'google.com') {
+            // Google Re-auth (Trigger Popup)
+            const provider = new firebase.auth.GoogleAuthProvider();
+            await currentUser.reauthenticateWithPopup(provider);
+        }
+
+        // 2. Success - Close Modal & Resolve Promise
+        modal.classList.remove('active');
+        modal.classList.add('hidden');
+        if (reauthResolve) reauthResolve(true);
+
+    } catch (error) {
+        console.error(error);
+        showToast("Verification Failed: " + "Invalid Password or Google Sign-In failed.", "error");
+        // Do not reject immediately, let them try again
+    }
+}
+
+// --- SECURE UPDATE ACTIONS ---
+
+async function updateUserProfile(e) {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    // 1. Trigger Security Check
+    try {
+        await promptReauth(); // Waits here until user enters correct password
+    } catch (error) {
+        return; // Stop if cancelled
+    }
+
+    // 2. If Verified, Proceed to Save
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerText;
+    btn.innerText = "SAVING...";
+    btn.disabled = true;
+
+    try {
+        await db.collection("registrations").doc(currentUser.uid).update({
+            fullName: document.getElementById('profName').value,
+            phone: document.getElementById('profPhone').value,
+            institution: document.getElementById('profInst').value,
+            year: document.getElementById('profYear').value
+        });
+
+        showToast("Security Verified. Profile Updated Successfully!", "success");
+        document.getElementById('profileNameDisplay').innerText = document.getElementById('profName').value;
+        toggleEditMode(false); // Lock inputs again
+
+    } catch (error) {
+        showToast("Update failed: " + error.message, "error");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function changeUserPassword(e) {
+    e.preventDefault();
+
+    const newPass = document.getElementById('newPass').value;
+    const confirmPass = document.getElementById('confirmPass').value;
+
+    if (newPass.length < 8) {
+        showToast("New password must be at least 8 characters.", "error");
+        return;
+    }
+    if (newPass !== confirmPass) {
+        showToast("Passwords do not match.", "error");
+        return;
+    }
+
+    // 1. Trigger Security Check
+    try {
+        await promptReauth(); // Waits here for current password
+    } catch (error) {
+        return;
+    }
+
+    // 2. If Verified, Update Password
+    try {
+        await currentUser.updatePassword(newPass);
+        showToast("Security Verified. Password Changed Successfully! Please login again.", "success");
+        handleLogout();
+    } catch (error) {
+        showToast("Error: " + error.message, "error");
+    }
+}
+
+function handleLogout() {
+    auth.signOut().then(() => {
+        showToast("Logged out successfully.", "success");
+        closeAuthModal();
+        window.location.reload();
+    });
+}
+
+// Export global functions
+window.switchProfileTab = switchProfileTab;
+window.toggleEditMode = toggleEditMode;
+window.updateUserProfile = updateUserProfile;
+window.changeUserPassword = changeUserPassword;
+window.handleLogout = handleLogout;
+window.cancelReauth = cancelReauth;
+window.confirmReauth = confirmReauth;
 
 // ===========================
 // 8. NEWSLETTER SUBSCRIPTION (Updated for EmailJS)
@@ -327,12 +810,12 @@ async function handleNewsletterSubmit(e) {
         await emailjs.sendForm(serviceID, templateID, form);
 
         // 4. Success Feedback
-        alert('Welcome to the Expedition! Please check your inbox for confirmation.');
+        showToast('Welcome to the Expedition! Please check your inbox for confirmation.', "success");
         form.reset();
 
     } catch (error) {
         console.error('Newsletter Error:', error);
-        alert('Transmission failed. Please check your connection and try again.');
+        showToast('Transmission failed. Please check your connection and try again.', "error");
     } finally {
         // 5. Reset UI State
         btn.disabled = false;
@@ -376,3 +859,37 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
 });
+
+
+// --- TOAST NOTIFICATION SYSTEM ---
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+
+    // Icon selection
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    const colorClass = type; // 'success' or 'error' defined in CSS
+
+    toast.className = `toast ${colorClass}`;
+    toast.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Animate In
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 4000);
+}
+// Export
+window.showToast = showToast;

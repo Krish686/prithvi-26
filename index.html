@@ -10,6 +10,18 @@
     <meta name="color-scheme" content="dark light">
     <title>PRITHVI 2026 | The Geological Zenith</title>
 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https:; 
+    script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; 
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
+    img-src 'self' data: https: blob:; 
+    connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://www.googleapis.com https://api.emailjs.com;">
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" as="style">
+
 
     <link rel="canonical" href="https://krish686.github.io/prithvi-26/">
 
@@ -45,12 +57,17 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./style.css">
 
+    <!-- Firebase  -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
     </script>
     <script type="text/javascript">
         (function () {
             emailjs.init({
-                publicKey: "tJuZgvSUcozIZtvrF", 
+                publicKey: "tJuZgvSUcozIZtvrF",
             });
         })();
     </script>
@@ -64,8 +81,9 @@
     </script>
 </head>
 
-<body>
 
+<body>
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
     <div class="noise-overlay" aria-hidden="true"></div>
     <div id="geo-canvas" aria-hidden="true"></div>
 
@@ -77,14 +95,15 @@
         <div class="nav-actions">
             <div class="nav-links">
                 <a href="#events" class="nav-item">Competitions</a>
-                <a href="#speakers" class="nav-item">Legacy</a>
                 <a href="#gallery" class="nav-item">Gallery</a>
                 <a href="#contact" class="nav-item">Contact</a>
             </div>
             <button class="btn-theme" id="themeToggle" aria-label="Toggle dark/light theme" type="button">
                 <i class="fas fa-moon" aria-hidden="true"></i>
             </button>
-            <a href="#register" class="btn-primary">REGISTER</a>
+            <button id="navAuthBtn" onclick="handleAuthClick()" class="nav-item auth-btn">
+                LOGIN
+            </button>
             <button class="hamburger" id="hamburger" aria-label="Toggle mobile menu" aria-expanded="false"
                 type="button">
                 <i class="fas fa-bars" aria-hidden="true"></i>
@@ -95,10 +114,11 @@
     <div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile Navigation">
         <button class="close-menu" id="closeMenu" aria-label="Close menu" type="button">✕</button>
         <a href="#events" class="mobile-link">Competitions</a>
-        <a href="#speakers" class="mobile-link">Legacy</a>
         <a href="#gallery" class="mobile-link">Gallery</a>
         <a href="#contact" class="mobile-link">Contact</a>
-        <a href="#register" class="mobile-link" style="color:var(--primary)">Register</a>
+        <button id="mobileAuthBtn" onclick="handleAuthClick()" class="nav-item auth-btn">
+            Login
+        </button>
     </div>
 
     <section class="hero" id="home">
@@ -133,130 +153,71 @@
     </section>
 
     <section id="events" class="section">
-        <div class="sec-header">
-            <h2>2026 COMPETITIONS</h2>
-            <p>Challenges designed to test the limits of geological knowledge.</p>
-        </div>
-
         <div class="grid-container">
-            <article class="event-card reveal" data-tilt tabindex="0">
+            <article class="event-card reveal" data-tilt>
                 <div class="cs-overlay">
                     <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
-                    <span class="lock-text">Coming Soon</span>
+                    <span class="lock-text">LOCKED</span>
                 </div>
                 <span class="card-badge">FLAGSHIP</span>
                 <div class="card-icon"><i class="fas fa-map-location-dot" aria-hidden="true"></i></div>
-                <h3>Indiana Geones</h3>
-                <p>The ultimate mineral treasure hunt. Decode maps and find the deposit.</p>
-                <a href="#" class="card-link">View Details</a>
+                <h3>TO BE ANNOUNCED</h3>
+                <p>Details regarding this flagship event are currently classified. Stay tuned for the reveal.</p>
             </article>
 
-            <article class="event-card reveal" data-tilt tabindex="0">
+            <article class="event-card reveal" data-tilt>
                 <div class="cs-overlay">
                     <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
-                    <span class="lock-text">Coming Soon</span>
+                    <span class="lock-text">LOCKED</span>
                 </div>
                 <span class="card-badge">LAB</span>
                 <div class="card-icon"><i class="fas fa-microscope" aria-hidden="true"></i></div>
-                <h3>Minrex</h3>
-                <p>High-speed mineral identification challenge.</p>
-                <a href="#" class="card-link">View Details</a>
+                <h3>TO BE ANNOUNCED</h3>
+                <p>Laboratory challenge details to be unearthed soon.</p>
             </article>
 
-            <article class="event-card reveal" data-tilt tabindex="0">
+            <article class="event-card reveal" data-tilt>
                 <div class="cs-overlay">
                     <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
-                    <span class="lock-text">Coming Soon</span>
+                    <span class="lock-text">LOCKED</span>
                 </div>
                 <span class="card-badge">FIELD</span>
                 <div class="card-icon"><i class="fas fa-compass" aria-hidden="true"></i></div>
-                <h3>Geodyssey</h3>
-                <p>Field mapping event. Map the terrain stratigraphy (07:00 AM).</p>
-                <a href="#" class="card-link">View Details</a>
+                <h3>TO BE ANNOUNCED</h3>
+                <p>Field expedition details are currently buried in the stratigraphy.</p>
             </article>
 
-            <article class="event-card reveal" data-tilt tabindex="0">
+            <article class="event-card reveal" data-tilt>
                 <div class="cs-overlay">
                     <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
-                    <span class="lock-text">Coming Soon</span>
+                    <span class="lock-text">LOCKED</span>
                 </div>
                 <span class="card-badge">QUIZ</span>
                 <div class="card-icon"><i class="fas fa-brain" aria-hidden="true"></i></div>
-                <h3>TerraWars</h3>
-                <p>National level quiz on Petrology &amp; Stratigraphy.</p>
-                <a href="#" class="card-link">View Details</a>
+                <h3>TO BE ANNOUNCED</h3>
+                <p>National level quiz topics and format to be declared shortly.</p>
             </article>
 
-            <article class="event-card reveal" data-tilt tabindex="0">
+            <article class="event-card reveal" data-tilt>
                 <div class="cs-overlay">
                     <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
-                    <span class="lock-text">Coming Soon</span>
+                    <span class="lock-text">LOCKED</span>
                 </div>
                 <span class="card-badge">CASE STUDY</span>
                 <div class="card-icon"><i class="fas fa-industry" aria-hidden="true"></i></div>
-                <h3>Explique</h3>
-                <p>Industrial case study. Solve real-world Oil &amp; Gas problems.</p>
-                <a href="#" class="card-link">View Details</a>
+                <h3>TO BE ANNOUNCED</h3>
+                <p>Industrial problem statement loading...</p>
             </article>
 
-            <article class="event-card reveal" data-tilt tabindex="0">
+            <article class="event-card reveal" data-tilt>
                 <div class="cs-overlay">
                     <i class="fas fa-lock lock-icon" aria-hidden="true"></i>
-                    <span class="lock-text">Coming Soon</span>
+                    <span class="lock-text">LOCKED</span>
                 </div>
                 <span class="card-badge">RESEARCH</span>
                 <div class="card-icon"><i class="fas fa-file-invoice" aria-hidden="true"></i></div>
-                <h3>Posters</h3>
-                <p>Present your research to a panel of distinguished scientists.</p>
-                <a href="#" class="card-link">View Details</a>
-            </article>
-        </div>
-    </section>
-
-    <section id="speakers" class="section">
-        <div class="sec-header">
-            <h2>LEGACY VISIONARIES</h2>
-            <p>Distinguished scientists and leaders who have graced Prithvi.</p>
-        </div>
-        <div class="speakers-grid">
-            <article class="s-card reveal" tabindex="0">
-                <div class="s-img-container">
-                    <img src="./assets/speakers/mrinal-sen.jpg"
-                        onerror="this.src='https://ui-avatars.com/api/?name=Mrinal+Sen&background=0D8ABC&color=fff&size=128'"
-                        alt="Dr. Mrinal K. Sen" class="s-img" loading="lazy">
-                </div>
-                <h3 class="s-name">Dr. Mrinal K. Sen</h3>
-                <p class="s-role">Prof. UT Austin (Geophysics)</p>
-            </article>
-
-            <article class="s-card reveal" tabindex="0">
-                <div class="s-img-container">
-                    <img src="./assets/speakers/saibal-ghosh.jpg"
-                        onerror="this.src='https://ui-avatars.com/api/?name=Saibal+Ghosh&background=0D8ABC&color=fff&size=128'"
-                        alt="Dr. Saibal Ghosh" class="s-img" loading="lazy">
-                </div>
-                <h3 class="s-name">Dr. Saibal Ghosh</h3>
-                <p class="s-role">Geological Survey of India</p>
-            </article>
-
-            <article class="s-card reveal" tabindex="0">
-                <div class="s-img-container">
-                    <img src="./assets/speakers/jayanta-basu.jpg"
-                        onerror="this.src='https://ui-avatars.com/api/?name=Jayanta+Basu&background=0D8ABC&color=fff&size=128'"
-                        alt="Mr. Jayanta Basu" class="s-img" loading="lazy">
-                </div>
-                <h3 class="s-name">Mr. Jayanta Basu</h3>
-                <p class="s-role">Env. Journalist (The Telegraph)</p>
-            </article>
-
-            <article class="s-card reveal" tabindex="0">
-                <div class="s-img-container">
-                    <img src="./assets/speakers/abhimanyu-maitra.jpg"
-                        onerror="this.src='https://ui-avatars.com/api/?name=Abhimanyu+Maitra&background=0D8ABC&color=fff&size=128'"
-                        alt="Mr. Abhimanyu Maitra" class="s-img" loading="lazy">
-                </div>
-                <h3 class="s-name">Mr. Abhimanyu Maitra</h3>
-                <p class="s-role">Industry Leader</p>
+                <h3>TO BE ANNOUNCED</h3>
+                <p>Presentation guidelines and abstract submission dates coming soon.</p>
             </article>
         </div>
     </section>
@@ -266,11 +227,23 @@
             <h2>PREVIOUS ASSOCIATIONS</h2>
         </div>
         <div class="logo-wall" role="list">
-            <div class="partner" role="listitem"><i class="fas fa-cube" aria-hidden="true"></i> SCHLUMBERGER</div>
-            <div class="partner" role="listitem"><i class="fas fa-microchip" aria-hidden="true"></i> IR TECHNOLOGY</div>
-            <div class="partner" role="listitem"><i class="fas fa-earth-americas" aria-hidden="true"></i> GSA</div>
-            <div class="partner" role="listitem"><i class="fas fa-flask" aria-hidden="true"></i> CHRISVIN</div>
-            <div class="partner" role="listitem"><i class="fas fa-handshake" aria-hidden="true"></i> DPPL</div>
+            <div class="partner" role="listitem">
+                <img src="./assets/sponsors/schlumberger.png" alt="Schlumberger" loading="lazy" width="200"
+                    height="100">
+            </div>
+            <div class="partner" role="listitem">
+                <img src="./assets/sponsors/ir-tech.png" alt="IR Technology" loading="lazy" width="200" height="100">
+            </div>
+            <div class="partner" role="listitem">
+                <img src="./assets/sponsors/gsa.png" alt="Geological Society of America" loading="lazy" width="200"
+                    height="100">
+            </div>
+            <div class="partner" role="listitem">
+                <img src="./assets/sponsors/chrisvin.png" alt="Chrisvin Geomet" loading="lazy" width="200" height="100">
+            </div>
+            <div class="partner" role="listitem">
+                <img src="./assets/sponsors/dppl.png" alt="DPPL" loading="lazy" width="200" height="100">
+            </div>
         </div>
     </section>
 
@@ -367,44 +340,22 @@
         </div>
     </section>
 
-    <section id="register" class="section">
-        <div class="reg-wrapper reveal">
+    <section id="register" class="section" style="text-align: center; padding: 6rem 5%;">
+        <div class="reg-wrapper reveal"
+            style="text-align: center; align-items: center; display: flex; flex-direction: column;">
             <h2
-                style="font-family: var(--font-display); font-size: 2.5rem; text-align: center; margin-bottom: 1rem; color: var(--text-main);">
-                JOIN THE EXPEDITION</h2>
-            <p style="text-align: center; color: var(--text-sub); margin-bottom: 3rem;">Secure your spot for April 3rd.
+                style="font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 1rem; color: var(--text-main);">
+                READY TO UNEARTH THE FUTURE?
+            </h2>
+            <p style="color: var(--text-sub); max-width: 600px; margin-bottom: 2.5rem; font-size: 1.1rem;">
+                Registration is now open. Secure your accommodation and participation spot today via our secure portal.
             </p>
-            <form action="https://formspree.io/f/xojwpprk" method="POST" id="registrationForm">
-                <div class="form-row">
-                    <div class="input-group">
-                        <label for="fullName">Full Name <span class="required">*</span></label>
-                        <input type="text" id="fullName" name="fullName" class="input-field" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="email">Email Address <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" class="input-field" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="input-group">
-                        <label for="institution">Institution <span class="required">*</span></label>
-                        <input type="text" id="institution" name="institution" class="input-field" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="category">Category <span class="required">*</span></label>
-                        <select id="category" name="category" class="input-field" required>
-                            <option value="">-- Select Category --</option>
-                            <option value="student">Student</option>
-                            <option value="professional">Professional</option>
-                            <option value="researcher">Research Scholar</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit">CONFIRM REGISTRATION</button>
-            </form>
+            <button onclick="openAuthModal('register')" class="btn-primary"
+                style="padding: 1rem 3rem; font-size: 1.2rem; clip-path: none; border-radius: 50px;">
+                OPEN REGISTRATION PORTAL
+            </button>
         </div>
     </section>
-
     <footer id="contact">
         <div class="footer-grid">
             <div class="f-col">
@@ -482,6 +433,246 @@
             </div>
         </div>
     </footer>
+
+    <div id="authModal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-container">
+
+            <div id="forgotPassView" class="auth-view hidden">
+                <h2>RECOVER ACCESS</h2>
+                <p>Enter your registered email to receive a reset link.</p>
+
+                <form onsubmit="handlePasswordResetSubmit(event)">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="resetEmail" class="input-field" required>
+                    </div>
+                    <button type="submit" class="btn-primary full-width" style="margin-top: 1.5rem;">SEND RESET
+                        LINK</button>
+                </form>
+
+                <p class="switch-auth">Remembered it? <a onclick="switchView('login')">Back to Login</a></p>
+            </div>
+
+            <button class="close-modal" onclick="closeAuthModal()">✕</button>
+
+            <div id="loginView" class="auth-view">
+                <h2>WELCOME BACK</h2>
+                <p>Access your expedition profile.</p>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" class="input-field" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPass" class="input-field" required>
+                    </div>
+
+                    <div style="text-align: right; margin-bottom: 1rem;">
+                        <a onclick="switchView('forgot')"
+                            style="color: var(--primary); font-size: 0.85rem; cursor: pointer; text-decoration: none;">Forgot
+                            Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-submit">LOGIN</button>
+                </form>
+
+                <div class="auth-divider"><span>OR</span></div>
+                <button type="button" class="btn-google" onclick="handleGoogleLogin()">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
+
+                <p class="switch-auth">New explorer? <a onclick="switchView('register')">Create Account</a></p>
+            </div>
+
+            <div id="registerView" class="auth-view hidden">
+
+                <div id="step1" class="reg-step">
+                    <h2>CREATE ACCOUNT</h2>
+                    <p>Start your journey.</p>
+
+                    <button type="button" class="btn-google" onclick="handleGoogleLogin()">
+                        <i class="fab fa-google"></i> Sign up with Google
+                    </button>
+                    <div class="auth-divider"><span>OR USE EMAIL</span></div>
+
+                    <div class="input-group">
+                        <label>Email <span class="required">*</span></label>
+                        <input type="email" id="regEmail" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label>Create Password <span class="required">*</span></label>
+                        <input type="password" id="regPass" class="input-field" placeholder="8+ chars, Symbol, Number">
+                        <small style="color: var(--text-sub); font-size: 0.7rem;">Must contain A-Z, 0-9, and a Symbol
+                            (!@#$)</small>
+                    </div>
+                    <button type="button" class="btn-primary full-width" onclick="nextStep(2)">NEXT: DETAILS
+                        &rarr;</button>
+                    <p class="switch-auth">Already registered? <a onclick="switchView('login')">Login here</a></p>
+                </div>
+
+                <div id="step2" class="reg-step hidden">
+                    <h2>YOUR PROFILE</h2>
+                    <div class="input-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" id="regName" class="input-field">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="regPhone" class="input-field" placeholder="+91 98765 43210">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Institution <span class="required">*</span></label>
+                        <input type="text" id="regInst" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label>Year <span class="required">*</span></label>
+                        <select id="regYear" class="input-field">
+                            <option value="1st">1st Year</option>
+                            <option value="2nd">2nd Year</option>
+                            <option value="3rd">3rd Year</option>
+                            <option value="4th">4th Year</option>
+                            <option value="PG">PG/PhD</option>
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button onclick="prevStep(1)" class="btn-secondary">BACK</button>
+                        <button onclick="nextStep(3)" class="btn-primary">NEXT &rarr;</button>
+                    </div>
+                </div>
+
+                <div id="step3" class="reg-step hidden">
+                    <h2>CONFIRM SPOT</h2>
+                    <div class="payment-box">
+                        <p>Registration Fee: <strong>₹150</strong></p>
+                        <p>UPI ID: <strong>prithvi@upi</strong></p>
+                    </div>
+                    <div class="input-group">
+                        <label>Transaction ID (UTR) *</label>
+                        <input type="text" id="regTxn" class="input-field" placeholder="Enter 12-digit UTR">
+                    </div>
+                    <div class="btn-group">
+                        <button onclick="prevStep(2)" class="btn-secondary">BACK</button>
+                        <button onclick="submitRegistration()" class="btn-submit">COMPLETE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profileView" class="auth-view hidden">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <h2 id="profileNameDisplay">Explorer</h2>
+                    <p id="profileEmailDisplay" style="color: var(--primary); font-size: 0.9rem;">user@example.com</p>
+                </div>
+
+                <div class="profile-tabs">
+                    <button class="tab-btn active" onclick="switchProfileTab('details')">Details</button>
+                    <button class="tab-btn" onclick="switchProfileTab('security')">Security</button>
+                </div>
+
+                <div id="tabDetails" class="profile-content">
+
+                    <div class="digital-id-card">
+                        <div class="id-details">
+                            <span class="id-badge">Explorer Pass</span>
+                            <h3 id="cardName">LOADING...</h3>
+                            <p id="cardId" style="font-family: monospace; color: var(--text-sub); letter-spacing: 1px;">
+                                ID: ....</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <i class="fas fa-qrcode"
+                                style="font-size: 3rem; color: var(--text-main); opacity: 0.8;"></i>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-bottom: 1rem;">
+                        <button id="editProfileBtn" onclick="toggleEditMode(true)"
+                            style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.9rem;">
+                            <i class="fas fa-pen"></i> Edit Details
+                        </button>
+                    </div>
+
+                    <form onsubmit="updateUserProfile(event)">
+                        <div class="form-row" style="margin-bottom: 1rem; gap: 1rem;">
+                            <div class="input-group">
+                                <label>Full Name</label>
+                                <input type="text" id="profName" class="input-field" disabled>
+                            </div>
+                            <div class="input-group">
+                                <label>Phone</label>
+                                <input type="tel" id="profPhone" class="input-field" disabled>
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-bottom: 1rem; gap: 1rem;">
+                            <div class="input-group">
+                                <label>Institution</label>
+                                <input type="text" id="profInst" class="input-field" disabled>
+                            </div>
+                            <div class="input-group">
+                                <label>Year</label>
+                                <select id="profYear" class="input-field" disabled>
+                                    <option value="1st">1st Year</option>
+                                    <option value="2nd">2nd Year</option>
+                                    <option value="3rd">3rd Year</option>
+                                    <option value="4th">4th Year</option>
+                                    <option value="PG">PG/PhD</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="editActions" class="btn-group hidden">
+                            <button type="button" class="btn-secondary" onclick="toggleEditMode(false)">CANCEL</button>
+                            <button type="submit" class="btn-primary">VERIFY & SAVE</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tabSecurity" class="profile-content hidden">
+                    <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 1rem;">
+                        To change your password, you will need to verify your current credentials.
+                    </p>
+                    <form onsubmit="changeUserPassword(event)">
+                        <div class="input-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPass" class="input-field"
+                                placeholder="Min 8 chars, 1 number, 1 symbol">
+                        </div>
+                        <div class="input-group" style="margin-top: 1rem;">
+                            <label>Confirm Password</label>
+                            <input type="password" id="confirmPass" class="input-field" placeholder="Re-enter password">
+                        </div>
+                        <button type="submit" class="btn-primary full-width" style="margin-top: 1.5rem;">VERIFY & UPDATE
+                            PASSWORD</button>
+                    </form>
+                </div>
+
+                <button onclick="handleLogout()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reauthModal" class="modal-overlay hidden" style="z-index: 4000;">
+        <div class="modal-container" style="max-width: 400px; border-color: var(--accent);">
+            <h3 style="margin-bottom: 1rem; color: var(--accent); font-family: var(--font-tech);">SECURITY CHECK</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--text-sub);">Please enter your current password to confirm
+                these changes.</p>
+
+            <input type="password" id="reauthPass" class="input-field" placeholder="Current Password">
+
+            <div class="btn-group" style="margin-top: 1.5rem;">
+                <button onclick="cancelReauth()" class="btn-secondary">CANCEL</button>
+                <button onclick="confirmReauth()" class="btn-primary"
+                    style="background: var(--accent); border-color: var(--accent);">CONFIRM</button>
+            </div>
+        </div>
+    </div>
 
     <script src="./script.js"></script>
 </body>
