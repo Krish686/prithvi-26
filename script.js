@@ -177,7 +177,7 @@ function updateCountdown() {
         const diff = target - now;
 
         if (diff < 0) {
-            clearInterval(timer);
+            clearInterval(countdownTimer);
             document.getElementById('d').innerText = '00';
             document.getElementById('h').innerText = '00';
             document.getElementById('m').innerText = '00';
