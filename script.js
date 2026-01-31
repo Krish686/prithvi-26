@@ -320,7 +320,7 @@ async function handleNewsletterSubmit(e) {
 
     // 3. EmailJS Service Parameters
     const serviceID = 'service_3rh241b';
-    const templateID = 'template_x6ect2o';
+    const templateID = 'template_djrpfme';
 
     try {
         // Send the form directly using the form element
