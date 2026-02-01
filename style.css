@@ -236,7 +236,7 @@ nav {
     transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1), visibility 0s linear 0.5s;
     visibility: hidden;
     pointer-events: none;
-    
+
 }
 
 .mobile-menu.active {
@@ -407,7 +407,7 @@ nav {
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
 }
 
@@ -423,6 +423,7 @@ nav {
     display: flex;
     flex-direction: column;
     height: 100%;
+    justify-content: space-between;
     transform-style: preserve-3d;
 }
 
@@ -599,7 +600,10 @@ nav {
 /* --- MOBILE SIZING --- */
 @media (max-width: 480px) {
     .partner {
-        width: 160px;
+        width: 45%;
+        /* Use percentage instead of fixed px */
+        max-width: 150px;
+        /* Cap the size */
         height: 90px;
         /* Ensure mobile users see the 'active' white background style */
         background: #ffffff;
@@ -989,13 +993,18 @@ footer {
         padding: 1rem 3%;
     }
 
+    .nav-actions .auth-btn {
+        display: none;
+    }
+
     .nav-links,
-    .btn-primary {
+    nav .btn-primary {
         display: none;
     }
 
     .hamburger {
         display: block;
+        z-index: 1001;
     }
 
     .hero {
@@ -1078,6 +1087,10 @@ footer {
         /* Centers the titles and text */
     }
 
+    #register .btn-primary {
+        display: inline-block !important;
+    }
+
     .contact-pill {
         justify-content: center;
         /* Centers the icon + text horizontally */
@@ -1156,7 +1169,7 @@ footer {
     }
 
     .gallery-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         grid-auto-rows: 150px;
     }
 
@@ -1184,8 +1197,9 @@ footer {
     }
 
     .logo-wall {
-        flex-direction: column;
-        gap: 1rem;
+        gap: 10px;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .partner {
@@ -1656,4 +1670,52 @@ footer {
     font-size: 0.7rem;
     font-weight: bold;
     text-transform: uppercase;
+}
+
+/* =========================================
+   RESPONSIVE FIXES (Added Patch)
+   ========================================= */
+
+/* 1. Fix Menu Hidden Issue */
+@media (max-width: 768px) {
+    .nav-actions .auth-btn {
+        display: none !important;
+        /* Hides top login btn to show hamburger */
+    }
+
+    .hamburger {
+        display: block !important;
+        margin-left: 1rem;
+    }
+}
+
+/* 2. Fix Horizontal Scrolling / Card Overflow */
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: 1fr !important;
+        /* Single column for events */
+        padding: 0 10px;
+    }
+
+    .section {
+        padding: 3rem 1rem;
+        /* Reduce padding */
+    }
+
+    .partner {
+        width: 130px !important;
+        /* Smaller logos */
+        height: 80px !important;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        /* 2 col gallery */
+        gap: 0.5rem;
+    }
+
+    /* Fix huge text on mobile */
+    .hero h1 {
+        font-size: 2.2rem !important;
+    }
 }
