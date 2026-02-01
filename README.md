@@ -1,67 +1,72 @@
 # 🌍 PRITHVI 2026 | The Geological Zenith
 
-> **The 18th International Earth Science Symposium at IIT Kharagpur**  
-> *Unearth the Future • April 3–5, 2026*
+> **The 18th International Earth Science Symposium at IIT Kharagpur** > *Unearth the Future • April 3–5, 2026*
 
 ![Prithvi 2026 Banner](assets/logos/og-image.jpg)
 
-🔗 **Live Website:** https://krish686.github.io/prithvi-26/
-
----
+[![Live Demo](https://img.shields.io/badge/Live-Demo-00f2ff?style=for-the-badge&logo=github&logoColor=black)](https://krish686.github.io/prithvi-26/)
+[![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)](https://krish686.github.io/prithvi-26/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ## 📖 About the Project
 
-**PRITHVI 2026** is the official website for the annual international geological symposium organized by the **Department of Geology & Geophysics, IIT Kharagpur**.
+**PRITHVI 2026** is the official web portal for the annual geological symposium organized by the Department of Geology & Geophysics at IIT Kharagpur. 
 
-The website acts as a central digital hub for:
-- Event information  
-- Competition details  
-- Registrations  
-- Past symposium archives  
-
-It features a modern **Glassmorphism-inspired UI** combined with a dual-theme experience derived from geological extremes:
-- 🌑 **Seismic Night** — Dark Mode  
-- ❄️ **Glacial Day** — Light Mode  
+This project is not just an informational site; it is a fully interactive **Web App** featuring user authentication, event registration, payment processing workflows, and a dedicated administration dashboard. The design philosophy merges **geological aesthetics** with **futuristic sci-fi elements**, utilizing glassmorphism and 3D rendering.
 
 ---
 
 ## ✨ Key Features
 
-- 🌐 **3D Interactive Earth**  
-  A rotating wireframe Earth built using **Three.js**, responding dynamically to mouse movements.
+### 🎨 Immersive UI/UX
+* **3D Interactive Earth:** A rotating wireframe globe with particle atmosphere built using **Three.js**.
+* **Dual Theme System:** * 🌑 *Seismic Night* (Dark Mode - Default)
+    * ❄️ *Glacial Day* (Light Mode)
+* **Glassmorphism Design:** Modern, frosted-glass UI elements with neon accents.
+* **Animations:** Smooth scroll reveals via **GSAP** and parallax tilt effects via **Vanilla Tilt**.
 
-- 🎨 **Dual Theme System**  
-  Seamless toggle between Dark and Light modes with preferences stored in Local Storage.
+### 🔐 User System (Firebase)
+* **Authentication:** * Google Sign-In integration.
+    * Email/Password registration with validation.
+    * Forgot Password flows.
+* **Profile Management:** * Users can edit personal details (Name, Institution, Year).
+    * **Security Check:** "Re-authentication" modal required for sensitive changes (Password/Data updates).
+    * **Digital ID Card:** Auto-generated unique ID for participants.
 
-- 🎞️ **Advanced Animations**
-  - **GSAP ScrollTrigger** for smooth scroll-based reveals  
-  - **Vanilla Tilt.js** for immersive 3D hover effects  
-  - **Live Countdown Timer** counting down to the event
+### 📝 Registration & Payments
+* **Multi-Step Form:** Guided registration wizard.
+* **Payment Integration:** QR Code display for UPI payments and Transaction ID (UTR) collection.
+* **Database:** Real-time data storage in **Firestore**.
 
-- 📱 **Fully Responsive Design**  
-  Mobile-first layout optimized for all screen sizes.
+### 🛡️ Admin Portal
+* **Secure Dashboard:** Dedicated `admin.html` page protected by hardcoded email verification.
+* **Data Management:** View real-time registrations in a tabular format.
+* **Actions:** Ability to delete registrations directly from the UI.
 
-- 📝 **Registration System**  
-  Integrated with **Formspree** for secure form submissions without a backend.
+### 📨 Utilities
+* **Newsletter:** Integrated with **EmailJS** for instant subscription handling.
+* **Toast Notifications:** Custom non-blocking alerts (replacing default browser alerts).
+* **Custom 404:** Themed error page with geological humor.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- HTML5  
-- CSS3 (Custom Properties & Media Queries)  
-- JavaScript (ES6+)
+### Frontend Core
+* **HTML5** (Semantic Markup)
+* **CSS3** (Variables, Grid/Flexbox, Media Queries)
+* **JavaScript** (ES6+, Async/Await)
 
-### Libraries & Tools
-- **Three.js** — 3D graphics rendering  
-- **GSAP (GreenSock)** — Advanced animations  
-- **Vanilla Tilt.js** — Parallax hover effects  
-- **Font Awesome 6** — Icons  
-- **Google Fonts** — Michroma, Rajdhani, Syne  
+### Libraries & Frameworks
+* **[Three.js](https://threejs.org/):** 3D WebGL rendering.
+* **[GSAP](https://greensock.com/gsap/):** ScrollTrigger animations.
+* **[Vanilla-Tilt.js](https://micku7zu.github.io/vanilla-tilt.js/):** 3D hover effects.
+* **[FontAwesome 6](https://fontawesome.com/):** Icons.
 
-### Form Handling
-- **Formspree**
+### Backend & Services (Serverless)
+* **[Firebase Auth](https://firebase.google.com/docs/auth):** Identity management.
+* **[Cloud Firestore](https://firebase.google.com/docs/firestore):** NoSQL Database.
+* **[EmailJS](https://www.emailjs.com/):** Client-side email dispatch.
 
 ---
 
@@ -69,13 +74,15 @@ It features a modern **Glassmorphism-inspired UI** combined with a dual-theme ex
 
 ```text
 prithvi-26/
-├── assets/
-│   ├── gallery/      # Event photos and highlights
-│   ├── logos/        # Favicons, banners, OG images
-│   └── speakers/     # Guest speaker headshots
-├── index.html        # Main landing page
-├── style.css         # Global styles and responsive layout
-├── script.js         # Three.js, theme toggle, countdown logic
-├── 404.html          # Custom geological-themed error page
-├── robots.txt        # SEO crawler directives
-└── sitemap.xml       # Search engine sitemap
+├── assets/                  # Static assets
+│   ├── gallery/             # Event photos
+│   ├── logos/               # Favicon, Og-image
+│   └── sponsors/            # Sponsor logos
+├── index.html               # Main landing page (User facing)
+├── admin.html               # Admin Dashboard (Restricted)
+├── style.css                # Global styles, themes, and responsive design
+├── script.js                # Core logic (3D, Auth, UI interactions)
+├── 404.html                 # Custom Error Page
+├── robots.txt               # SEO directives
+├── sitemap.xml              # SEO sitemap
+└── README.md                # Documentation
